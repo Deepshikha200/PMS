@@ -30,7 +30,7 @@
 {
     text-align: left;
 }
-.signup .nameError
+.signup .nameError 
 {
     color:red;
     font-size: 12px;
@@ -64,4 +64,9 @@
 {
     margin-left: 205px;
     margin-top: -40px;
+}
+
+.phoneError {
+color: red;
+font-size: 12px;
 }

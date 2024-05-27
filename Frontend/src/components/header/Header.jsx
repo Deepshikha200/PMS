@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import './Header.css'
@@ -19,6 +19,7 @@ import Logout from '@mui/icons-material/Logout';
 <Navbar.Toggle aria-controls="navbarScroll" />
 
 export default function Header() {
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -27,6 +28,11 @@ export default function Header() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Clear the JWT token from localStorage
+        navigate('/'); // Redirect to the login page
+      };
   return (
     <>
     <div className="header">
@@ -122,7 +128,7 @@ export default function Header() {
                                </ListItemIcon>
                                Change Password
                              </MenuItem>
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={handleLogout}>
                                <ListItemIcon>
                                 <Logout fontSize="small" />
                                 </ListItemIcon>
@@ -141,3 +147,4 @@ export default function Header() {
     </>
   )
 }
+

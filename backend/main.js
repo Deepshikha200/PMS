@@ -8,7 +8,7 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
-
+app.use(express.json());
 const auth = require('./routers/routes'); // Adjust the path as necessary
 
 app.use('/api', auth);

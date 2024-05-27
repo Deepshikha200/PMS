@@ -66,28 +66,6 @@ router.post('/signup', async (req, res) => {
   try {
     await newUser.save();
     res.status(201).json({ message: 'User created successfully', user: newUser });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Route to handle user login
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
     // Send welcome email
     const mailOptions = {
@@ -104,11 +82,82 @@ router.post('/login', async (req, res) => {
         console.log('Email sent:', info.response);
       }
     });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
-    res.json({ message: 'Login successful', token });
+
+
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     // Generate JWT token
+//     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+//     res.json({ message: 'Login successful', token }); // Send token in response
+//   } catch (error) {
+//     res.status(500).json({ error: 'An unexpected error occurred' });
+//   }
+// });
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+
+    res.json({ message: 'Login successful' });
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
 
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+  res.json({ message: 'Logout successful' });
+});
+
+
+router.get('/employees', async (req, res) => {
+  try {
+    const employees = await User.find({});
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+});
+
+router.get('/jobrole' , async (req,res) => 
+{
+  try {
+    const jobRole = await User.find({jobRole});
+    res.status(200).json(jobRole);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+});
 module.exports = router;
