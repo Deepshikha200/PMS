@@ -119,6 +119,7 @@ export default function Signup() {
     try {
       const response = await axios.post('http://localhost:5050/api/signup', formData);
       toast.success(response.data.message);
+      localStorage.setItem('userRole', formData.jobRole);
       setTimeout(() => {
         navigate('/');
       }, 2000);

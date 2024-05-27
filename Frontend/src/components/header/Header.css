@@ -42,3 +42,7 @@ font-weight: bold;
     background-color: #1976D2;
      color:white;
   }
+  .header .search
+  {
+    width:350px;
+  }

@@ -62,7 +62,7 @@ export default function Employees() {
             // },
             // '& .MuiDataGrid-columnsContainer': {
             //     backgroundColor: '#f0f0f0', // Background color for header
-            // },
+            // }, 
         }}
         initialState={{
           pagination: {
