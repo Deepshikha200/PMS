@@ -1,0 +1,67 @@
+.signup
+{
+    background-image: radial-gradient(circle at center center, rgb(30, 108, 204),rgb(36, 61, 118));
+    height: 100vh;
+}
+.signup-container
+{
+    display: flex;
+    box-shadow: 0 0 10px 5px rgba(202, 198, 198, 0.3);
+    height:auto;
+    width:1000px;
+    border-radius: 10px;  
+}
+.signup-textfield
+{
+    height: 40px;
+    width:200px;
+}
+.signup-btn
+{
+    height: 40px;
+    width:300px;
+}
+.signup-textfield-email
+{
+    width:430px;
+}
+
+#demo-simple-select-filled
+{
+    text-align: left;
+}
+.signup .nameError
+{
+    color:red;
+    font-size: 12px;
+}
+.signup .emailerror
+{
+    color:red;
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    float: left;
+    margin-left: 40px;
+}
+.signup .passerror
+{
+    /* position: absolute; */
+    font-size: 12px;
+     width:400px;
+    color:red;
+    margin-left: 40px;
+    /* margin-bottom: 20px; */
+}
+.signup .cpasserror
+{
+    color:red;
+    font-size: 12px;
+    float: right;
+    margin-right: 80px;
+}
+.signup .eyeicon
+{
+    margin-left: 205px;
+    margin-top: -40px;
+}

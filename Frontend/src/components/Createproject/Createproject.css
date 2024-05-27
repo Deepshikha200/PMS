@@ -1,0 +1,48 @@
+.createproject .name
+{
+    width:90%;
+    margin:20px 30px;
+    margin-bottom: 30px;
+}
+.createproject .status
+{
+    
+    width:186px;
+    margin-left: 30px;
+}
+.createproject .hourlyrate ,.budget
+{
+    width: 186px;
+    /* margin-left:20px; */
+
+}
+.createproject .budget{
+    width: 180px;
+    /* margin-left: 20px; */
+}
+hr
+{
+    margin: 20px 20px;
+}
+.createproject .projectteam
+{
+    margin-left: 33px;
+}
+.addnewemp
+{
+    margin-left: 250px;
+   
+    font-weight: bold;
+}
+.createproject .deleteicon
+{
+    position: absolute;
+    margin-top: 30px;
+    font-size: 20px;
+}
+.createproject-btn
+{
+    width:150px;
+    height: 40px;
+    margin-right: 30px;
+}

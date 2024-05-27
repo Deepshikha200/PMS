@@ -1,0 +1,20 @@
+.report .btn
+{
+    margin-left: 100px;
+}
+.report-modal .modal-content
+{
+    height: auto;
+    width:500px;
+}
+.report-modal .modal-header
+  {
+    background-color: #1976D2;
+     color:white;
+  }
+  .report-modal .modal-title
+  {
+    text-align: center;
+    width: 100%;
+    font-size: 25px;
+  }

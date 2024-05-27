@@ -1,0 +1,28 @@
+.header
+{
+    background-color: #F8F9FA;
+}
+.navbarscroll_inner 
+{
+    width: 100%;
+  
+}
+   @media (max-width: 992px) {
+    .navbarscroll_inner
+   {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+    
+.nav-link
+{
+  margin-left: 40px;
+  color:black;
+}
+.nav-link:hover
+{
+  color: #1976D2;
+font-weight: bold;
+  border-bottom: 2px solid black;
+}
