@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useState} from 'react'
 import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -16,6 +16,8 @@ import Tooltip from '@mui/material/Tooltip';
 import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
+import Changepassword from '../changepassword/Changepassword';
+import Modal from 'react-bootstrap/Modal';
 <Navbar.Toggle aria-controls="navbarScroll" />
 
 export default function Header() {
@@ -27,6 +29,12 @@ export default function Header() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+    const[changepass,setchangepass]=useState(false)
+
+    function show()
+    {
+      setchangepass(true)
+    }
   return (
     <>
     <div className="header">
@@ -116,7 +124,7 @@ export default function Header() {
                                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                                     >
        
-                             <MenuItem onClick={handleClose}>
+                             <MenuItem onClick={show}>
                                <ListItemIcon>
                                      <Settings fontSize="small" />
                                </ListItemIcon>
@@ -137,7 +145,14 @@ export default function Header() {
                 </Navbar>
             </div>
         </div>
-
+        <Modal  show={changepass} onHide={()=>setchangepass(false) } className='changepass-modal'>
+        <Modal.Header closeButton>
+          <Modal.Title >Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Changepassword/>
+        </Modal.Body>
+      </Modal>
     </>
   )
 }

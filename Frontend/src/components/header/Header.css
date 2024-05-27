@@ -26,3 +26,19 @@
 font-weight: bold;
   border-bottom: 2px solid black;
 }
+.changepass-modal .modal-content
+{
+  height:auto;
+}
+.changepass-modal .modal-title
+{
+  text-align: center;
+  width: 100%;
+  font-size: 25px;
+  /* background-color: #1976D2; */
+}
+.changepass-modal .modal-header
+  {
+    background-color: #1976D2;
+     color:white;
+  }
