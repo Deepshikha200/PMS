@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import './Employees.css';
 import Box from '@mui/material/Box';
@@ -63,7 +61,14 @@ export default function Employees() {
             '& .even-row': {
               backgroundColor: grey[100],
             },
-          }}
+            // '.custom-pagination': {
+            //     backgroundColor: '#000', 
+            // },
+            // '& .MuiDataGrid-columnsContainer': {
+            //     backgroundColor: '#f0f0f0', // Background color for header
+            // }, 
+        }}
+      
           initialState={{
             pagination: {
               paginationModel: {

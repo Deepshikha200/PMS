@@ -72,7 +72,30 @@ router.post('/signup', async (req, res) => {
       from: 'deepshikhap9877@gmail.com',
       to: user.email,
       subject: 'Welcome to Antier Solutions!',
-      text: `Hello ${user.firstName},\n\nWelcome to Antier Solutions! We're glad to have you on board.\n\nBest regards,\nAntier Solutions Team`,
+      text: `<div style="border=2px solid black">
+      <h1 style="text-align:center">Antier Solutions</h1>
+      <img src="email.svg" alt="Welcome Image" style="max-width:500px;">
+     <h3> Welcome!Your registration has been successfully completed.</h3>
+      Hi ${newUser.firstName},
+ 
+      This application helps your team generate, organize, track your projects. <br/>
+       You are able to check projects assigned to you and can send daily remarks on the progress of the project.
+      
+      Here are your details for reference:
+      - Name: ${newUser.firstName} ${newUser.lastName}
+      - Email: ${newUser.email}
+      - Phone Number: ${newUser.phoneNo}
+      - Job Role: ${newUser.jobRole}
+      
+      If you have any questions or need further assistance, please don't hesitate to reach out to us.
+      
+      We look forward to your contributions and wish you great success in your new role.
+      
+      Best regards,
+      Antier Solutions Team
+      </div>`,
+      
+   
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

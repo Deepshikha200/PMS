@@ -35,6 +35,12 @@
     color:red;
     font-size: 12px;
 }
+.signup .phoneError
+{
+    width:200px;
+    margin-left: 40px;
+    font-size: 12px;
+}
 .signup .emailerror
 {
     color:red;

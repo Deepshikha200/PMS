@@ -1,26 +1,31 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import { Navbar, Nav } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import './Header.css'
-import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
-import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
+import Changepassword from '../changepassword/Changepassword';
+import Modal from 'react-bootstrap/Modal';
+import InputBase from '@mui/material/InputBase';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 <Navbar.Toggle aria-controls="navbarScroll" />
+
+
 
 export default function Header() {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const[changepass,setchangepass]=useState(false)
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
       setAnchorEl(event.currentTarget);
@@ -28,6 +33,20 @@ export default function Header() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+
+
+    function show()
+    {
+      setchangepass(true)
+    }
+    const [userRole, setUserRole] = useState(null); // State to manage user role
+
+    // Mock user role for demonstration
+    useEffect(() => {
+        // This would be fetched from your auth context or API in a real app
+        const storedUserRole=localStorage.getItem('userRole');
+        setUserRole(storedUserRole); // or 'user', 'manager', etc.
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('token'); // Clear the JWT token from localStorage
@@ -50,7 +69,16 @@ export default function Header() {
                                 style={{ maxHeight: '100px' }}
                                 navbarScroll
                             >
+                                <div className='search rounded border bg-white'>
+                              <InputBase  sx={{ ml: 1, flex: 1,pl:2}} placeholder="Search "
+                                //  inputProps={{ 'aria-label': 'search google maps' }}
+                                  />
+                                <IconButton type="button" sx={{marginLeft:'75px' }} aria-label="search">
+                                 <SearchIcon />
+                                    </IconButton>
+                                    </div>
                             </Nav>
+                        
                             
                             <Nav className="navbar-nav ">
                                 <div className='nav-links'>
@@ -74,6 +102,8 @@ export default function Header() {
                                 {/* <div className='links'>
                                     <Button className="nav-btn ms-5" variant="contained">Log out</Button>
                                 </div> */}
+                            
+                           
                                 <div className='links'>
                                 <Tooltip title="Account settings">
                                     <IconButton
@@ -122,7 +152,7 @@ export default function Header() {
                                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                                     >
        
-                             <MenuItem onClick={handleClose}>
+                             <MenuItem onClick={show}>
                                <ListItemIcon>
                                      <Settings fontSize="small" />
                                </ListItemIcon>
@@ -143,7 +173,14 @@ export default function Header() {
                 </Navbar>
             </div>
         </div>
-
+        <Modal  show={changepass} onHide={()=>setchangepass(false) } className='changepass-modal'>
+        <Modal.Header closeButton>
+          <Modal.Title >Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Changepassword/>
+        </Modal.Body>
+      </Modal>
     </>
   )
 }

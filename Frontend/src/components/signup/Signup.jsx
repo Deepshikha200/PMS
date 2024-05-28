@@ -139,6 +139,7 @@ export default function Signup() {
     try {
       const response = await axios.post('http://localhost:5050/api/signup', formData);
       toast.success(response.data.message);
+      localStorage.setItem('userRole', formData.jobRole);
       setTimeout(() => {
         navigate('/');
       }, 2000);
@@ -199,7 +200,7 @@ export default function Signup() {
             value={formData.phoneNo}
             onChange={handleChange} 
           />
-          {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
+          
 
           <FormControl variant='filled' sx={{ m: 1, ml: 2, minWidth: 200 }}>
             <InputLabel id='jobRoleLabel'>Job Role</InputLabel>
@@ -212,6 +213,7 @@ export default function Signup() {
               onChange={handleChange}
           
             >
+              
               <MenuItem value=''>Select your role</MenuItem>
               <MenuItem value='tpm'>TPM</MenuItem>
               <MenuItem value='pm'>PM</MenuItem>
@@ -224,6 +226,7 @@ export default function Signup() {
             </Select>
           
           </FormControl>
+          {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
           <TextField
             className='signup-textfield m-3'
             id='password'
