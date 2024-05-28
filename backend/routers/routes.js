@@ -112,6 +112,7 @@ router.post('/signup', async (req, res) => {
 //   }
 // });
 
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -126,15 +127,26 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
+    // Generate JWT token
     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
-
-    res.json({ message: 'Login successful' });
+    res.json({ message: 'Login successful', token }); // Send token in response
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
+
+router.get('/members/:jobRole', async (req, res) => {
+  try {
+    const { jobRole } = req.params;
+    const members = await User.find({ jobRole });
+    res.status(200).json(members);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
@@ -151,10 +163,9 @@ router.get('/employees', async (req, res) => {
   }
 });
 
-router.get('/jobrole' , async (req,res) => 
-{
+router.get('/jobrole', async (req, res) => {
   try {
-    const jobRole = await User.find({jobRole});
+    const jobRole = await User.find({ jobRole });
     res.status(200).json(jobRole);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch employees' });
