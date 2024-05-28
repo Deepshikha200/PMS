@@ -1,6 +1,8 @@
 import React,{useState,useEffect} from 'react'
 import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import Autocomplete from '@mui/material/Autocomplete';
 import './Header.css'
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
@@ -21,6 +23,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 
 export default function Header() {
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const[changepass,setchangepass]=useState(false)
     const open = Boolean(anchorEl);
@@ -30,6 +33,7 @@ export default function Header() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+
 
     function show()
     {
@@ -43,6 +47,11 @@ export default function Header() {
         const storedUserRole=localStorage.getItem('userRole');
         setUserRole(storedUserRole); // or 'user', 'manager', etc.
     }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Clear the JWT token from localStorage
+        navigate('/'); // Redirect to the login page
+      };
   return (
     <>
     <div className="header">
@@ -149,7 +158,7 @@ export default function Header() {
                                </ListItemIcon>
                                Change Password
                              </MenuItem>
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={handleLogout}>
                                <ListItemIcon>
                                 <Logout fontSize="small" />
                                 </ListItemIcon>
@@ -175,3 +184,4 @@ export default function Header() {
     </>
   )
 }
+

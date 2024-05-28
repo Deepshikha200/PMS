@@ -66,12 +66,75 @@ router.post('/signup', async (req, res) => {
   try {
     await newUser.save();
     res.status(201).json({ message: 'User created successfully', user: newUser });
+
+    // Send welcome email
+    const mailOptions = {
+      from: 'deepshikhap9877@gmail.com',
+      to: user.email,
+      subject: 'Welcome to Antier Solutions!',
+      text: `<div style="border=2px solid black">
+      <h1 style="text-align:center">Antier Solutions</h1>
+      <img src="email.svg" alt="Welcome Image" style="max-width:500px;">
+     <h3> Welcome!Your registration has been successfully completed.</h3>
+      Hi ${newUser.firstName},
+ 
+      This application helps your team generate, organize, track your projects. <br/>
+       You are able to check projects assigned to you and can send daily remarks on the progress of the project.
+      
+      Here are your details for reference:
+      - Name: ${newUser.firstName} ${newUser.lastName}
+      - Email: ${newUser.email}
+      - Phone Number: ${newUser.phoneNo}
+      - Job Role: ${newUser.jobRole}
+      
+      If you have any questions or need further assistance, please don't hesitate to reach out to us.
+      
+      We look forward to your contributions and wish you great success in your new role.
+      
+      Best regards,
+      Antier Solutions Team
+      </div>`,
+      
+   
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Route to handle user login
+
+
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     // Generate JWT token
+//     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+//     res.json({ message: 'Login successful', token }); // Send token in response
+//   } catch (error) {
+//     res.status(500).json({ error: 'An unexpected error occurred' });
+//   }
+// });
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -86,29 +149,38 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    // Generate JWT token
     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
-    // Send welcome email
-    const mailOptions = {
-      from: 'deepshikhap9877@gmail.com',
-      to: user.email,
-      subject: 'Welcome to Antier Solutions!',
-      text: `Hello ${user.firstName},\n\nWelcome to Antier Solutions! We're glad to have you on board.\n\nBest regards,\nAntier Solutions Team`,
-    };
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
-
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful' });
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
 
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+  res.json({ message: 'Logout successful' });
+});
+
+
+router.get('/employees', async (req, res) => {
+  try {
+    const employees = await User.find({});
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+});
+
+router.get('/jobrole' , async (req,res) => 
+{
+  try {
+    const jobRole = await User.find({jobRole});
+    res.status(200).json(jobRole);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+});
 module.exports = router;
