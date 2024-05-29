@@ -50,6 +50,8 @@ export default function Header() {
 
     const handleLogout = () => {
         localStorage.removeItem('token'); // Clear the JWT token from localStorage
+        localStorage.removeItem('userId'); // Clear the userid from localStorage
+        localStorage.removeItem('jobRole'); // Clear the jobrole from localStorage
         navigate('/'); // Redirect to the login page
       };
   return (

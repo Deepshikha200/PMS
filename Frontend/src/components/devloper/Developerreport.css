@@ -1,0 +1,20 @@
+.developerreport .btn
+{
+    margin-left: 100px;
+}
+.developerreport-modal .modal-content
+{
+    height: auto;
+    width:500px;
+}
+.developerreport-modal .modal-header
+  {
+    background-color: #1976D2;
+     color:white;
+  }
+  .developerreport-modal .modal-title
+  {
+    text-align: center;
+    width: 100%;
+    font-size: 25px;
+  }

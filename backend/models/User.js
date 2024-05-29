@@ -1,9 +1,6 @@
+
 const mongoose = require('mongoose');
 
-// Define enum values for the jobRole field
-const jobRoleEnum = ['tpm', 'pm', 'ba', 'qa', 'devoops', 'developer', 'tl', 'ui/ux'];
-
-// Define the User schema
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -30,15 +27,20 @@ const userSchema = new mongoose.Schema({
   },
   jobRole: {
     type: String,
-    enum: jobRoleEnum, // Use the enum values here
+    enum: ['TPM', 'PM', 'BA', 'QA', 'DEVOPS', 'DEVELOPER', 'TL', 'UI/UX'], // Capitalize job roles
     required: true
   },
   password: {
     type: String,
     required: true
-  }
+  },
+  projects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
+  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' }
 });
 
+// Custom setter function to capitalize job role before saving
+userSchema.path('jobRole').set(function (value) {
+  return value.toUpperCase();
+});
 
-// Create and export the User model
 module.exports = mongoose.model('User', userSchema);

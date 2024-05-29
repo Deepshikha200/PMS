@@ -45,8 +45,7 @@ import { LuCalendarClock } from "react-icons/lu";
 import Modal from 'react-bootstrap/Modal';
 import Button from '@mui/material/Button';
 import CreateProject from '../Createproject/CreateProject';
-import Projecttable from '../projecttable/Projecttable.jsx'
-
+import Projecttable from '../projecttable/Projecttable.jsx';
 export default function Project() {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [projectCreated, setProjectCreated] = useState(false); // State to track project creation
@@ -61,6 +60,7 @@ export default function Project() {
   }
 
   return (
+    <>
     <div className='project'>
       <h2 className='text-center fs-1'>Project List</h2>
       <Button className="btn float-end" variant="contained" onClick={show}>+ New Project</Button>
@@ -74,6 +74,7 @@ export default function Project() {
         <div className='project-table'>
           <h3>Your Projects</h3>
           <Projecttable/>
+          {/* Add your project table here */}
         </div>
       ) : (
         // Project Container
@@ -84,8 +85,7 @@ export default function Project() {
           <Button className="btn" variant="contained" onClick={show}>+ New Project</Button>
         </div>
       )}
-
-      <Modal show={showCreateProject} onHide={() => setShowCreateProject(false)} className='custom-modal'>
+           <Modal show={showCreateProject} onHide={() => setShowCreateProject(false)} className='custom-modal'>
         <Modal.Header closeButton>
           <Modal.Title>Create Project</Modal.Title>
         </Modal.Header>
@@ -94,5 +94,6 @@ export default function Project() {
         </Modal.Body>
       </Modal>
     </div>
+    </>
   );
 }
