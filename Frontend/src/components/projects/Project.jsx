@@ -74,7 +74,6 @@ export default function Project() {
         <div className='project-table'>
           <h3>Your Projects</h3>
           <Projecttable/>
-          {/* Add your project table here */}
         </div>
       ) : (
         // Project Container
