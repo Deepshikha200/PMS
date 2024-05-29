@@ -122,7 +122,9 @@ const handleSubmit = async (e) => {
     toast.success('Login successful!');
 
     // Extract jobRole and userId from response
-    const { jobRole, userId } = response.data;
+    const { jobRole, userId, token } = response.data;
+      // Extract jobRole from response
+      // const { jobRole ,token} = response.data;
 
     // Store token and userId in local storage
     localStorage.setItem('token', response.data.token);
@@ -131,6 +133,9 @@ const handleSubmit = async (e) => {
 
     // Navigate based on jobRole after a delay
     setTimeout(() => {
+      // Store JWT token in local storage
+      localStorage.setItem('token', token);
+// Navigate based on jobRole
       if (jobRole === 'DEVELOPER') {
         navigate('/developer');
       } else {

@@ -54,20 +54,20 @@ export default function Employees() {
           rows={rows}
           columns={columns}
           getRowSpacing={getRowSpacing}
-          sx={{
-            '& .odd-row': {
-              backgroundColor: grey[200],
-            },
-            '& .even-row': {
-              backgroundColor: grey[100],
-            },
-            // '.custom-pagination': {
-            //     backgroundColor: '#000', 
-            // },
-            // '& .MuiDataGrid-columnsContainer': {
-            //     backgroundColor: '#f0f0f0', // Background color for header
-            // }, 
-        }}
+        //   sx={{
+        //     '& .odd-row': {
+        //       backgroundColor: grey[200],
+        //     },
+        //     '& .even-row': {
+        //       backgroundColor: grey[100],
+        //     },
+        //     // '.custom-pagination': {
+        //     //     backgroundColor: '#000', 
+        //     // },
+        //     // '& .MuiDataGrid-columnsContainer': {
+        //     //     backgroundColor: '#f0f0f0', // Background color for header
+        //     // }, 
+        // }}
       
           initialState={{
             pagination: {
@@ -78,6 +78,18 @@ export default function Employees() {
           }}
           pageSizeOptions={[100]}
           disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#1976D2',
+              color: 'white',
+            },
+            '& .MuiDataGrid-cell': {
+              backgroundColor: '#f5f5f5',
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: '#000',
+            },
+          }}
         />
       </Box>
     </div>
