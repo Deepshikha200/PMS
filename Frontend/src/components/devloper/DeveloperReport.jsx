@@ -44,6 +44,18 @@ export default function DeveloperReport() {
           }}
           pageSizeOptions={[100]}
           disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#1976D2',
+              color: 'white',
+            },
+            '& .MuiDataGrid-cell': {
+              backgroundColor: '#f5f5f5',
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: '#e3f2fd',
+            },
+          }}
         />
       </Box>
      
