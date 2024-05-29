@@ -62,6 +62,9 @@ export default function Login() {
       toast.success('Login successful!');
       // Store JWT token in local storage
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.userId);
+
+      // localStorage.setItem('loggedIn', true)
       setTimeout(() => {
         navigate('/project'); 
       }, 2000); // Wait for 2 seconds before navigating

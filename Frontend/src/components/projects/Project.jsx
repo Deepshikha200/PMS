@@ -6,6 +6,7 @@ import { LuCalendarClock } from "react-icons/lu";
 import Modal from 'react-bootstrap/Modal';
 import Button from '@mui/material/Button';
 import CreateProject from '../Createproject/CreateProject';
+import Navbar from '../header/Header'
 export default function Project() {
   const[Showcreateproject,setShowcreateproject]=useState(false)
 
@@ -15,6 +16,7 @@ export default function Project() {
   }
   return (
     <div className='project'> 
+    {/* <Navbar/> */}
         <h2 className='text-center fs-1' >Project List</h2>
             <Button className="btn float-end" variant="contained" onClick={show}>+ New Project</Button>
             <Button className="btn float-end me-4" variant="contained" ><Link className='text-white text-decoration-none' to="/report">Report</Link></Button>

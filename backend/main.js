@@ -10,10 +10,8 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 const auth = require('./routers/routes'); // Adjust the path as necessary
-const projects = require('./routers/project')
 
 app.use('/api', auth);
-app.use('/api', projects)
 
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI)
