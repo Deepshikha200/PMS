@@ -5,8 +5,8 @@ export default function DeveloperProject() {
     const [rows, setRows] = useState([]);
     const columns = [
         { field: 'ProjectName', headerName: 'Project Name', width: 400, headerAlign: 'center', align: 'center' },
-        { field: 'Assigned by', headerName: 'Date', width: 300, headerAlign: 'center', align: 'center' },
-        { field: 'Team', headerName: 'Team', width: 300, headerAlign: 'center', align: 'center' },
+        { field: 'Assigned by', headerName: 'Date', width: 400, headerAlign: 'center', align: 'center' },
+        { field: 'Team', headerName: 'Team', width: 400, headerAlign: 'center', align: 'center' },
       
       ];
   return (
