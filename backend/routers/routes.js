@@ -149,11 +149,11 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id, email: user.email,jobRole: user.jobRole }, JWT_SECRET, { expiresIn: '1h' });
 
     res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
 
-    res.json({ message: 'Login successful' });
+    res.json({ message: 'Login successful' ,token,jobRole: user.jobRole});
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
@@ -183,4 +183,55 @@ router.get('/jobrole' , async (req,res) =>
     res.status(500).json({ error: 'Failed to fetch employees' });
   }
 });
+
+router.post('/forgotpassword',async(req,res)=>{
+  const {email, firstName}=req.body;
+  try {
+    const user = await User.findOne({ email }); 
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+    const randomPassword = generateRandomPassword();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(randomPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+    const newUser = new User({
+      firstName,
+      email,
+     
+    });
+    const mailOptions = {
+      from: 'deepshikhap9877@gmail.com',
+      to: user.email,
+      subject: 'Reset Password',
+      text: `Hi ${newUser.firstName}
+      \n we received a request to reset your password, Here we are providing you with your new password . After loggin in you can change your password from your profile.
+      Password : ${randomPassword}
+      If you have any questions or need further assistance, please don't hesitate to reach out to us.
+      
+      We look forward to your contributions and wish you great success in your new role.
+      
+      Best regards,
+      Antier Solutions Team
+      `
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+      res.status(200).json({ message: 'Password reset email sent successfully' });
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+
+
 module.exports = router;

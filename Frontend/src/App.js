@@ -37,11 +37,13 @@ return (
       <Routes>
       <Route path="/employee" element={<Employees/>}/>
       <Route path="/workschedule" element={<Workschedule/>}/>
-        <Route path="/home" element={<Devloper_dashboard/>}/>
+        <Route path="/developer" element={<Devloper_dashboard/>}/>
          <Route path="/report" element={<Report/>} />
         {/* <Route path="/signup" element={<Signup handleRoleSelection={handleRoleSelection} />} /> */}
         <Route path="/signup" element={<Signup/>} /> 
         <Route path="/" element={<Lognin />} />
+        <Route path="/forgotpassword" element={<ForgotpassModal/>}/>
+        
         <Route path="/forgotpass" element={<ForgotpassModal/>} />
         <Route path="/project" element={<Project/>}/>
       </Routes>
