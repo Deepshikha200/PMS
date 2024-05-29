@@ -27,21 +27,19 @@ function App() {
   // const setLoggedInUser = (role) => {
   //     setLoggedInUserRole(role);
   // };
-  const isloggedIn = localStorage.getItem("loggedIn")
-
   return (
     <div className="App">
       <Router>
+        {/* <NoNavbar selectedRole={selectedRole}> */}
         <NoNavbar>
           <Header />
         </NoNavbar>
         <Routes>
           <Route path="/employee" element={<Employees />} />
           <Route path="/workschedule" element={<Workschedule />} />
-          <Route path="/home" element={<Devloper_dashboard />} />
+          <Route path="/developer" element={<Devloper_dashboard />} />
           <Route path="/report" element={<Report />} />
           {/* <Route path="/signup" element={<Signup handleRoleSelection={handleRoleSelection} />} /> */}
-          {/* <Route path="/" element={isloggedIn === "true" ? <Project /> : <Lognin />} /> */}
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={<Lognin />} />
           <Route path="/forgotpass" element={<ForgotpassModal />} />

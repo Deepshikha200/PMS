@@ -10,7 +10,7 @@ export default function NoNavbar({ children }) {
     
     useEffect(() => {
       console.log(location);
-      if (location.pathname === '/' || location.pathname === '/signup')
+      if (location.pathname === '/' || location.pathname === '/signup' || location.pathname=== '/developer')
           setShowNavbar(false);
       else
           setShowNavbar(true);

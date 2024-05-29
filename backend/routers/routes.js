@@ -163,6 +163,32 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     const token = jwt.sign({ userId: user._id, email: user.email, jobRole: user.jobRole }, JWT_SECRET, { expiresIn: '1h' });
+
+//     // res.json({ message: 'Login successful', token }); // Send token in response
+//     res.json({ message: 'Login successful', token, userId: user._id }); // Send userId along with the token
+
+//     res.json({ message: 'Login successful', token, jobRole: user.jobRole });
+//   } catch (error) {
+//     res.status(500).json({ error: 'An unexpected error occurred' });
+//   }
+// });
+
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -177,12 +203,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, jobRole: user.jobRole },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    // res.json({ message: 'Login successful', token }); // Send token in response
-    res.json({ message: 'Login successful', token, userId: user._id }); // Send userId along with the token
-
+    res.json({ message: 'Login successful', token, jobRole: user.jobRole, userId: user._id });
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
@@ -217,52 +244,6 @@ router.get('/jobrole', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch employees' });
   }
 });
-
-
-// Route to create a new project
-
-router.post('/projects', async (req, res) => {
-  try {
-    const { name, status, hourlyRate, budget, team, createdBy } = req.body;
-
-    // Extract IDs of team members
-    const teamMemberIds = team.map(member => member.member);
-
-    const newProject = new Project({
-      name,
-      status,
-      hourlyRate,
-      budget,
-      team,
-      createdBy
-    });
-
-    await newProject.save();
-
-    // Update the user (creator) to include the created project
-    await User.findByIdAndUpdate(createdBy, { $push: { projects: newProject._id } });
-
-    // Associate the project with team members' IDs
-    await User.updateMany({ _id: { $in: teamMemberIds } }, { $push: { projects: newProject._id } });
-
-    res.status(201).json(newProject);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Route to get all projects
-router.get('/projects', async (req, res) => {
-  try {
-    const projects = await Project.find().populate('createdBy');
-    res.status(200).json(projects);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
 module.exports = router;
 
 
