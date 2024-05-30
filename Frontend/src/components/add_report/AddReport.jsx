@@ -45,7 +45,7 @@ export default function AddReport() {
                          <MenuItem value="pm">PM</MenuItem>
                          <MenuItem value="ba">BA</MenuItem>
                          <MenuItem value="qa">QA</MenuItem>
-                         <MenuItem value="devoops">Devoops</MenuItem>
+                         <MenuItem value="devops">Devops</MenuItem>
                          <MenuItem value="developer">Developer</MenuItem>
                          <MenuItem value="tl">TL</MenuItem>
                          <MenuItem value="ui/ux">UI/UX</MenuItem>

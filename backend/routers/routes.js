@@ -4,14 +4,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
-// const crypto = require('crypto');
 const Project = require('../models/Project');
+const JobRole = require('../models/jobRoles');
+
 
 const Team = require("../models/Team")
 const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
 const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-// const generateRandomPassword = () => crypto.randomBytes(8).toString('hex');
-
 const JWT_SECRET = 'your_jwt_secret_key'; // Replace with your own secret key
 
 const transporter = nodemailer.createTransport({
@@ -20,6 +19,28 @@ const transporter = nodemailer.createTransport({
     user: 'deepshikhap9877@gmail.com',
     pass: 'hovn iwsc hjbf iusz',
   },
+});
+
+router.get('/jobrole', async (req, res) => {
+  try {
+    const jobRoles = await JobRole.find();
+    res.status(200).json(jobRoles);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// POST create a new job role
+router.post('/jobrole', async (req, res) => {
+  const { name } = req.body;
+  const newJob = new JobRole({ name });
+
+  try {
+    const savedJob = await newJob.save();
+    res.status(201).json(savedJob);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 });
 
 
@@ -220,10 +241,14 @@ router.get('/jobrole', async (req, res) => {
 });
 
 
-// Create a new project
+
 router.post('/projects', async (req, res) => {
   try {
     const { name, status, hourlyRate, budget, team, createdBy } = req.body;
+
+    // Extract IDs of team members
+    const teamMemberIds = team.map(member => member.member);
+
     const newProject = new Project({
       name,
       status,
@@ -232,10 +257,14 @@ router.post('/projects', async (req, res) => {
       team,
       createdBy
     });
+
     await newProject.save();
 
-    // Update the user to include the created project
+    // Update the user (creator) to include the created project
     await User.findByIdAndUpdate(createdBy, { $push: { projects: newProject._id } });
+
+    // Associate the project with team members' IDs
+    await User.updateMany({ _id: { $in: teamMemberIds } }, { $push: { projects: newProject._id } });
 
     res.status(201).json(newProject);
   } catch (error) {
@@ -254,6 +283,16 @@ router.get('/projects', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const projects = await Project.find({ createdBy: req.params.userId });
+    res.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Failed to fetch projects' });
   }
 });
 
