@@ -1,9 +1,9 @@
-import React from 'react'
+import React,{useState} from 'react'
+import Box from '@mui/material/Box';
+import { DataGrid } from '@mui/x-data-grid';
 
 export default function Projecttable() {
   const [rows, setRows] = useState([]);
-
-
 
   const columns = [
     { field: 'id', headerName: 'Sr no.', width: 200, headerAlign: 'center', align: 'center' },
@@ -14,16 +14,12 @@ export default function Projecttable() {
   ];
 
 
-    return 
-  };
-
   return (
     <div className=''>
       <Box sx={{ height: 560, width: '100%', p: 5 }}>
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowSpacing={getRowSpacing}
                 initialState={{
             pagination: {
               paginationModel: {
@@ -50,3 +46,4 @@ export default function Projecttable() {
     </div>
   );
 
+}
