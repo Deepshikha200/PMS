@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const [jobRoles, setJobRoles] = useState([]);
   const handleEye = () => {
     setShowPassword(true);
   }
@@ -29,10 +30,24 @@ export default function Signup() {
     lastName: '',
     email: '',
     phoneNo: '',
-    jobRole: '',
+    jobRole: '', // This will hold the ObjectId of the selected job role
     password: '',
     confirmPassword: '',
   });
+
+  // Fetch job roles from backend upon component mount
+  useEffect(() => {
+    const fetchJobRoles = async () => {
+      try {
+        const response = await axios.get('http://localhost:5050/api/jobrole');
+        setJobRoles(response.data);
+      } catch (error) {
+        console.error('Error fetching job roles:', error);
+      }
+    };
+
+    fetchJobRoles();
+  }, []);
 
   const [emailError, setEmailError] = useState('');
   const [nameError, setNameError] = useState('');
@@ -128,30 +143,46 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validateForm()) return;
+    
     if (emailError || passwordError || confirmPasswordError) {
       toast.error('Please fix the errors before submitting.');
       return;
     }
+    
     if (!validatePassword(formData.password)) {
       toast.error('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
       return;
     }
+  
     try {
-      const response = await axios.post('http://localhost:5050/api/signup', formData);
+      // Fetch the ObjectId of the selected job role based on its name
+      const selectedJobRole = jobRoles.find(role => role.name === formData.jobRole);
+      if (!selectedJobRole) {
+        throw new Error('Selected job role not found');
+      }
+  
+      // Prepare form data with the correct jobRole ObjectId
+      const preparedFormData = {
+        ...formData,
+        jobRole: selectedJobRole._id
+      };
+  
+      // Send form data to backend for signup
+      const response = await axios.post('http://localhost:5050/api/signup', preparedFormData);
       toast.success(response.data.message);
       setTimeout(() => {
         navigate('/');
       }, 2000);
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(error.response.data.message);
+      console.error('Error signing up:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
       } else {
-        toast.error('There was an error submitting the form!');
+        toast.error('There was an error signing up. Please try again.');
       }
-      console.error('There was an error submitting the form!', error);
     }
   };
+  
 
   return (
     <div className='signup d-flex justify-content-center align-items-center'>
@@ -209,31 +240,21 @@ export default function Signup() {
             required 
           />
           
-
-          <FormControl variant='filled' sx={{ m: 1, ml: 2, minWidth: 200 }}>
+          <FormControl variant='filled' sx={{ m: 1, minWidth: 200 }}>
             <InputLabel id='jobRoleLabel'>Job Role</InputLabel>
             <Select
               labelId='jobRoleLabel'
               id='jobRole'
               name='jobRole'
-              className='signup-role'
               value={formData.jobRole}
               onChange={handleChange}
               required
-          
             >
-              
               <MenuItem value=''>Select your role</MenuItem>
-              <MenuItem value='tpm'>TPM</MenuItem>
-              <MenuItem value='pm'>PM</MenuItem>
-              <MenuItem value='ba'>BA</MenuItem>
-              <MenuItem value='qa'>QA</MenuItem>
-              <MenuItem value='devops'>Devops</MenuItem>
-              <MenuItem value='developer'>Developer</MenuItem>
-              <MenuItem value='tl'>TL</MenuItem>
-              <MenuItem value='ui/ux'>UI/UX</MenuItem>
+              {jobRoles.map((role) => (
+                <MenuItem key={role._id} value={role.name}>{role.name}</MenuItem>
+              ))}
             </Select>
-          
           </FormControl>
           {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
           <TextField

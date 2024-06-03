@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Employees.css';
+// import './Employees.css';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { grey } from '@mui/material/colors';
@@ -33,7 +33,9 @@ export default function Employees() {
       console.error('Error fetching data:', error);
     }
   };
-
+  // const getRowClassName = (params) => {
+  //   return params.rowIndex % 2 === 0 ? 'even-row' : 'odd-row';
+  // };
   const columns = [
     { field: 'id', headerName: 'Sr no.', width: 200, headerAlign: 'center', align: 'center' },
     { field: 'name', headerName: 'Name', width: 300, headerAlign: 'center', align: 'center' },
@@ -42,10 +44,14 @@ export default function Employees() {
     { field: 'status', headerName: 'Status', width: 300, headerAlign: 'center', align: 'center' }
   ];
 
-  const getRowSpacing = (params) => {
-    return params.rowIndex % 2 === 0 ? 'even-row' : 'odd-row';
-  };
-
+  // const getRowSpacing = (params) => {
+  //   return params.rowIndex % 2 === 0 ? 'even-row' : 'odd-row';
+  // };
+  // const getRowStyle = (params) => {
+  //   return {
+  //     backgroundColor: params.rowIndex % 2 === 0 ? grey[100] : grey[200],
+  //   };
+  // };
   return (
     <div className='report'>
       <h2 className='mt-5 mb-3 text-center fs-1 fw-bold '>Employees List</h2>
@@ -53,7 +59,8 @@ export default function Employees() {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowSpacing={getRowSpacing}
+          // getRowStyle={getRowStyle}
+          // getRowSpacing={getRowSpacing}
         //   sx={{
         //     '& .odd-row': {
         //       backgroundColor: grey[200],
@@ -89,6 +96,12 @@ export default function Employees() {
             '& .MuiDataGrid-row:hover': {
               backgroundColor: '#000',
             },
+            // '& .odd-row': {
+            //   backgroundColor: '#000',
+            // },
+            // '& .even-row': {
+            //   backgroundColor: grey[100],
+            // },
           }}
         />
       </Box>

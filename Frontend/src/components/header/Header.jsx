@@ -54,6 +54,7 @@ export default function Header() {
         localStorage.removeItem('jobRole'); // Clear the jobrole from localStorage
         navigate('/'); // Redirect to the login page
       };
+     
   return (
     <>
     <div className="header">

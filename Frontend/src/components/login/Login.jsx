@@ -53,63 +53,7 @@ export default function Login() {
     return Object.keys(errors).length === 0;
   };
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!validateForm()) return;
 
-//     try {
-//       const response = await axios.post('http://localhost:5050/api/login', formData);
-//       toast.success('Login successful!');
-
-//       // Extract jobRole from response
-//       const { jobRole ,user_id } = response.data;
-//       localStorage.setItem('user_id');
-//       // Store JWT token in local storage
-//       localStorage.setItem('token', response.data.token);
-// // Navigate based on jobRole
-//       if (jobRole === 'DEVELOPER') {
-//         navigate('/developer');
-//       } 
-//      else {
-//         navigate('/project');
-//       }
-//     } catch (error) {
-//       toast.error(error.response?.data?.error || 'An unexpected error occurred');
-//     }
-//   };
-
-
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   if (!validateForm()) return;
-
-//   try {
-//     const response = await axios.post('http://localhost:5050/api/login', formData);
-//     // Display success toast
-//     toast.success('Login successful!', { autoClose: 2000 });
-
-//     // Extract jobRole and userId from response
-//     const { jobRole, userId } = response.data;
-
-//     // Store token and userId in local storage
-//     localStorage.setItem('token', response.data.token);
-//     localStorage.setItem('userId', userId);
-//     localStorage.setItem('jobRole', jobRole);
-
-
-//     // Navigate based on jobRole
-//     if (jobRole === 'DEVELOPER') {
-//       navigate('/developer');
-//     } 
-//      else {
-//       // Navigate to a default page if jobRole is not specified
-//       navigate('/project');
-//     }
-//   } catch (error) {
-//     // Display error toast
-//     toast.error(error.response?.data?.error || 'An unexpected error occurred', { autoClose: 2000 });
-//   }
-// };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -123,8 +67,7 @@ const handleSubmit = async (e) => {
 
     // Extract jobRole and userId from response
     const { jobRole, userId, token } = response.data;
-      // Extract jobRole from response
-      // const { jobRole ,token} = response.data;
+    
 
     // Store token and userId in local storage
     localStorage.setItem('token', response.data.token);

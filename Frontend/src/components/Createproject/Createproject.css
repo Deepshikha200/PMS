@@ -10,15 +10,16 @@
     width:186px;
     margin-left: 30px;
 }
-.createproject .hourlyrate ,.budget
+.createproject .hourlyRate
 {
     width: 186px;
-    /* margin-left:20px; */
+    margin-left: 20px;
+    
 
 }
 .createproject .budget{
-    width: 180px;
-    /* margin-left: 20px; */
+    width: 186px;
+    margin-left: 20px;
 }
 hr
 {

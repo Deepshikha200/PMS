@@ -6,10 +6,11 @@ export default function Projecttable() {
   const [rows, setRows] = useState([]);
 
   const columns = [
-    { field: 'id', headerName: 'Sr no.', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'id', headerName: 'Sr no.', width: 100, headerAlign: 'center', align: 'center' },
     { field: 'ProjectName', headerName: 'Project Name', width: 300, headerAlign: 'center', align: 'center' },
-    { field: 'Createdby', headerName: 'Created By', width: 300, headerAlign: 'center', align: 'center' },
-    { field: 'Members', headerName: 'Members', width: 300, headerAlign: 'center', align: 'center' },
+    { field: 'Createdby', headerName: 'Created By', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'Date', headerName: 'Date', width: 150, headerAlign: 'center', align: 'center' },
+    { field: 'members', headerName: 'Members', width: 300, headerAlign: 'center', align: 'center' },
     { field: 'status', headerName: 'Status', width: 300, headerAlign: 'center', align: 'center' }
   ];
 
