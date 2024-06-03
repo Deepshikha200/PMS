@@ -27,9 +27,10 @@ export default function CreateProject({ onProjectCreated }) {
     const fetchData = async () => {
       try {
         const teamsResponse = await axios.get('http://localhost:5050/api/teams');
+        console.log("Teams:", teamsResponse.data);
         const membersResponse = await axios.get('http://localhost:5050/api/email');
+        console.log("Members:", membersResponse.data);
         const jobRolesResponse = await axios.get('http://localhost:5050/api/jobrole');
-        
         console.log("Job Roles:", jobRolesResponse.data);
         
         setAvailableTeams(teamsResponse.data);
@@ -44,17 +45,7 @@ export default function CreateProject({ onProjectCreated }) {
     fetchData();
   }, []);
   
-  const handleSelectMembers = async (id) => {
-    try {
-      const response = await axios.get(`http://localhost:5050/api/members/${id}`);
-      setAvailableMembers(response.data);
-      console.log("Selected Members:", response.data);
-    } catch (error) {
-      console.error('Error fetching members:', error);
-    }
-  };
-  
-  
+
   const handleAddRow = () => {
     const newRow = { id: rows.length + 1, jobRole: '', team: '', member: '' };
     setRows([...rows, newRow]);
@@ -66,18 +57,20 @@ export default function CreateProject({ onProjectCreated }) {
   };
 
   const handleChange = (id, field, value) => {
-    
-    if (field === 'members') {
-      const selectedMember = availableMembers.find(member => member.email === value);
-      value = selectedMember ? selectedMember._id : ''; // Use the _id or an empty string if not found
+    try {
+      const response =  axios.get(`http://localhost:5050/api/members/${id}`);
+      setAvailableMembers(response.data);
+      console.log("Selected Members:", response.data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
     }
+    console.log("ID:", id, "Field:", field, "Value:", value);
     const updatedRows = rows.map((row) =>
       row.id === id ? { ...row, [field]: value } : row
     );
     setRows(updatedRows);
   };
-
-
+  
   const handleCreateProject = async () => {
     const userId = localStorage.getItem('userId'); // Retrieve the user ID from localStorage
   
@@ -101,14 +94,17 @@ export default function CreateProject({ onProjectCreated }) {
       }),
       createdBy: userId
     };
-  
-    try {
+try {
       const response = await axios.post('http://localhost:5050/api/projects', projectData);
-      console.log('Project created successfully!', response);
-      onProjectCreated();
       // toast.success('Project created successfully!');
-
-     
+      console.log('Project created successfully!', response);
+      // Call the callback to indicate project creation
+      onProjectCreated();
+  
+      // // Set timeout to hide the toast after 2 seconds
+      // setTimeout(() => {
+      //   toast.dismiss();
+      // }, 2000);
     } catch (error) {
       console.error('Error creating project:', error);
       toast.error('Failed to create project. Please try again.');
@@ -144,7 +140,6 @@ export default function CreateProject({ onProjectCreated }) {
         label="Hourly Rate"
         variant="outlined"
         value={hourlyRate}
-        type="number"
         onChange={(e) => setHourlyRate(e.target.value)}
       />
       <TextField
@@ -152,34 +147,26 @@ export default function CreateProject({ onProjectCreated }) {
         id="outlined-basic"
         label="Budget"
         variant="outlined"
-        type="number"
         value={budget}
         onChange={(e) => setBudget(e.target.value)}
       />
       <hr />
       <InputLabel className="projectteam text-black">Project Team</InputLabel>
-      {console.log(rows,'rowsrowsrowsrows')}
       {rows.map((item) => (
-      
         <div key={item.id}>
           <FormControl sx={{ m: 1, ml: 4, mt: 2, minWidth: 186 }}>
             <InputLabel>Job role</InputLabel>
             <Select
-                label='Job Role'
-                value={item.jobRole}
-                onChange={(e) => {
-                  handleChange(item.id, 'jobRole', e.target.value);
-                  handleSelectMembers(e.target.value); 
-                }}
-              >
-                {jobRoles.map((role) => (
-                
-                  <MenuItem key={role._id} value={role._id}>{role.name}</MenuItem>
-                ))}
-              </Select>
-
+              label='Job Role'
+              value={item.jobRole}
+              onChange={(e) => handleChange(item.id, 'jobRole', e.target.value)}
+            >
+              {jobRoles.map((role) => (
+                <MenuItem key={role._id} value={role.name}>{role.name}</MenuItem>
+              ))}
+            </Select>
           </FormControl>
-          <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
+          <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 150 }}>
             <Autocomplete
               options={availableTeams.map(team => team.name)}
               renderInput={(params) => (
@@ -209,4 +196,3 @@ export default function CreateProject({ onProjectCreated }) {
     </div>
   );
 }
-
