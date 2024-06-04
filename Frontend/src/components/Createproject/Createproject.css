@@ -13,12 +13,11 @@
 .createproject .hourlyRate
 {
     width: 186px;
-    margin-left: 20px;
-    
+    margin-left:20px;
 
 }
 .createproject .budget{
-    width: 186px;
+    width: 180px;
     margin-left: 20px;
 }
 hr

@@ -53,42 +53,36 @@ export default function Login() {
     return Object.keys(errors).length === 0;
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
+    try {
+      const response = await axios.post('http://localhost:5050/api/login', formData);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
+      // Display success toast
+      toast.success('Login successful!');
 
-  try {
-    const response = await axios.post('http://localhost:5050/api/login', formData);
+      // Extract jobRole and userId from response
+      const { jobRole, userId, token } = response.data;
 
-    // Display success toast
-    toast.success('Login successful!');
-
-    // Extract jobRole and userId from response
-    const { jobRole, userId, token } = response.data;
-    
-
-    // Store token and userId in local storage
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('jobRole', jobRole);
-
-    // Navigate based on jobRole after a delay
-    setTimeout(() => {
-      // Store JWT token in local storage
+      // Store token and userId in local storage
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('jobRole', jobRole);
       localStorage.setItem('token', token);
-// Navigate based on jobRole
-      if (jobRole === 'DEVELOPER') {
-        navigate('/developer');
-      } else {
-        navigate('/project');
-      }
-    }, 2000); // 2000 milliseconds delay
-  } catch (error) {
-    toast.error(error.response?.data?.error || 'An unexpected error occurred');
-  }
-};
+
+      // Navigate based on jobRole after a delay
+      setTimeout(() => {
+        if (jobRole === 'DEVELOPER') {
+          navigate('/developer');
+        } else {
+          navigate('/project');
+        }
+      }, 2000); // 2000 milliseconds delay
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'An unexpected error occurred');
+    }
+  };
 
   return (
     <>

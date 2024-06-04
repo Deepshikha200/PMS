@@ -6,12 +6,17 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const Project = require('../models/Project');
 const JobRole = require('../models/jobRoles');
+const Report = require('../models/Report');
 
 
 const Team = require("../models/Team")
 const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
-const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const JWT_SECRET = 'your_jwt_secret_key'; // Replace with your own secret key
+
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+};
+const JWT_SECRET = 'your_jwt_secret_key';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -21,12 +26,74 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.get('/jobrole', async (req, res) => {
+
+router.get('/developer/projects/:developerId', async (req, res) => {
+  const { developerId } = req.params;
   try {
-    const jobRoles = await JobRole.find();
-    res.status(200).json(jobRoles);
+    const projects = await Project.find({
+      team: { $elemMatch: { member: developerId } }
+    }, 'name createdBy team').populate('createdBy', 'firstName lastName').populate('team', 'firstName lastName');
+
+    res.status(200).json({ projects });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+router.post('/addreport', async (req, res) => {
+  try {
+    const { projectName, employeeName, jobRole, date, shiftStart, shiftEnd, remarks } = req.body;
+
+    // Validate input data
+    if (!projectName || !employeeName || !jobRole || !date || !shiftStart || !shiftEnd) {
+      return res.status(400).json({ error: 'Please fill in all required fields' });
+    }
+
+    // Ensure project and employee exist
+    const project = await Project.findById(projectName);
+    const employee = await User.findById(employeeName);
+
+    if (!project || !employee) {
+      return res.status(404).json({ error: 'Project or employee not found' });
+    }
+
+    // Create new report
+    const newReport = new Report({
+      projectName,
+      employeeName,
+      jobRole,
+      date,
+      shiftStart,
+      shiftEnd,
+      remarks,
+    });
+
+    // Save report to database
+    const savedReport = await newReport.save();
+    res.status(201).json(savedReport);
+  } catch (error) {
+    console.error('Error adding report:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+router.get('/reports', async (req, res) => {
+  try {
+    const reports = await Report.find()
+      .populate('projectName', 'name')
+      .populate('employeeName', 'firstName lastName')
+      .populate({
+        path: 'jobRole',
+        select: 'name'
+      });
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -55,7 +122,7 @@ router.get('/teams', async (req, res) => {
 
 router.get('/email', async (req, res) => {
   try {
-    const users = await User.find().select('email');
+    const users = await User.find().select('email jobRole'); // Include jobRole for completeness
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -158,7 +225,6 @@ router.post('/signup', async (req, res) => {
           <li>Name: ${newUser.firstName} ${newUser.lastName}</li>
           <li>Email: ${newUser.email}</li>
           <li>Phone Number: ${newUser.phoneNo}</li>
-          <li>Job Role: ${newUser.jobRole}</li>
         </ul>
         <br/>
         If you have any questions or need further assistance, please don't hesitate to reach out to us.
@@ -182,11 +248,13 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('jobRole', 'name');
     if (!user) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
@@ -197,13 +265,12 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, jobRole: user.jobRole },
+      { userId: user._id, email: user.email, jobRole: user.jobRole.name },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // Send userId along with the token
-    res.json({ message: 'Login successful', token, userId: user._id, jobRole: user.jobRole });
+    res.json({ message: 'Login successful', token, userId: user._id, jobRole: user.jobRole.name });
   } catch (error) {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
@@ -213,7 +280,8 @@ router.post('/login', async (req, res) => {
 router.get('/members/:jobRole', async (req, res) => {
   try {
     const { jobRole } = req.params;
-    const members = await User.find({ jobRole });
+    const members = await User.find({ jobRole }).populate('jobRole', 'name');
+
     res.status(200).json(members);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -223,32 +291,30 @@ router.get('/members/:jobRole', async (req, res) => {
 
 router.get('/employees', async (req, res) => {
   try {
-    const employees = await User.find({});
+    // const employees = await User.find({});
+    const employees = await User.find({}).populate('jobRole', 'name');
+
     res.status(200).json(employees);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch employees' });
   }
 });
 
+
+// GET all job roles
 router.get('/jobrole', async (req, res) => {
   try {
-
-    const jobRole = await User.find().select('jobRole');
-    res.status(200).json(jobRole);
+    const jobRoles = await JobRole.find();
+    res.status(200).json(jobRoles);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch employees' });
+    res.status(500).json({ error: 'Failed to fetch job roles' });
   }
 });
-
 
 
 router.post('/projects', async (req, res) => {
   try {
     const { name, status, hourlyRate, budget, team, createdBy } = req.body;
-
-    // Extract IDs of team members
-    const teamMemberIds = team.map(member => member.member);
-
     const newProject = new Project({
       name,
       status,
@@ -257,14 +323,10 @@ router.post('/projects', async (req, res) => {
       team,
       createdBy
     });
-
     await newProject.save();
 
-    // Update the user (creator) to include the created project
+    // Update the user to include the created project
     await User.findByIdAndUpdate(createdBy, { $push: { projects: newProject._id } });
-
-    // Associate the project with team members' IDs
-    await User.updateMany({ _id: { $in: teamMemberIds } }, { $push: { projects: newProject._id } });
 
     res.status(201).json(newProject);
   } catch (error) {
@@ -276,6 +338,7 @@ router.post('/projects', async (req, res) => {
 
 
 // Route to get all projects
+
 router.get('/projects', async (req, res) => {
   try {
     const projects = await Project.find().populate('createdBy');
@@ -286,19 +349,119 @@ router.get('/projects', async (req, res) => {
   }
 });
 
+
 router.get('/user/:userId', async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const projects = await Project.find({ createdBy: req.params.userId });
-    res.json(projects);
+    const userProjects = await Project.find({ createdBy: userId })
+      .populate('createdBy', 'firstName lastName')  // Fetching both firstName and lastName
+      .populate('team.member', 'firstName lastName'); // Ensure this matches your schema
+
+    // Format the projects to include full name of the creator
+    const formattedProjects = userProjects.map(project => ({
+      ...project._doc,
+      createdBy: `${project.createdBy.firstName} ${project.createdBy.lastName}`,
+      team: project.team.map(member => ({
+        ...member._doc,
+        name: `${member.member.firstName} ${member.member.lastName}`
+      }))
+    }));
+
+    res.json(formattedProjects);
   } catch (error) {
-    console.error('Error fetching projects:', error);
-    res.status(500).json({ error: 'Failed to fetch projects' });
+    res.status(500).json({ error: 'Error fetching projects' });
+  }
+});
+
+router.post('/change-password', async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body;
+
+  if (!userId || !currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Validate the current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Validate the new password
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+});
+
+// DELETE a project by ID
+router.delete('/projects/:id', async (req, res) => {
+  try {
+    const projectId = req.params.id;
+
+    // Find the project
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Remove the project reference from users
+    await User.updateMany(
+      { projects: projectId },
+      { $pull: { projects: projectId } }
+    );
+
+    // Delete the project
+    await Project.findByIdAndDelete(projectId);
+
+    res.status(200).json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 
+router.get('/projects/:projectId/team', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findById(projectId).populate('team.member', 'firstName lastName');
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    const teamMembers = project.team.map(member => ({
+      id: member.member._id,
+      name: `${member.member.firstName} ${member.member.lastName}`
+    }));
+
+    res.status(200).json(teamMembers);
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 module.exports = router;
-
 
 

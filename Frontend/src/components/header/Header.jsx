@@ -22,7 +22,9 @@ import SearchIcon from '@mui/icons-material/Search';
 
 
 
-export default function Header() {
+export default function Header({ onSearch }) {
+    const [searchQuery, setSearchQuery] = useState('');
+
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const[changepass,setchangepass]=useState(false)
@@ -33,7 +35,10 @@ export default function Header() {
     const handleClose = () => {
       setAnchorEl(null);
     };
-
+    const handleSearch = () => {
+        onSearch(searchQuery);
+      };
+    
 
     function show()
     {
@@ -73,12 +78,15 @@ export default function Header() {
                                 navbarScroll
                             >
                                 <div className='search rounded border bg-white'>
-                              <InputBase  sx={{ ml: 1, flex: 1,pl:2}} placeholder="Search "
-                                //  inputProps={{ 'aria-label': 'search google maps' }}
-                                  />
-                                <IconButton type="button" sx={{marginLeft:'75px' }} aria-label="search">
-                                 <SearchIcon />
-                                    </IconButton>
+                                <InputBase
+          sx={{ ml: 1, flex: 1, pl: 2 }}
+          placeholder="Search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <IconButton type="button" sx={{ marginLeft: '75px' }} aria-label="search" onClick={handleSearch}>
+          <SearchIcon />
+        </IconButton>
                                     </div>
                             </Nav>
                         
