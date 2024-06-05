@@ -66,6 +66,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <DeveloperLayout />
+
               </ProtectedRoute>
             }
           >

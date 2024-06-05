@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -39,7 +38,7 @@ export default function AddReport({ onReportAdded }) {
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
 
         const employeesResponse = await axios.get('http://localhost:5050/api/employees');
-        const employeeOptions = employeesResponse.data.map(employee => ({ label: `${employee.firstName} ${employee.lastName}`, id: employee._id }));
+        const employeeOptions = employeesResponse.data.map(employee => ({ label: `${employee.email}`, id: employee._id }));
         setEmployeeNames(employeeOptions);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -54,8 +53,7 @@ export default function AddReport({ onReportAdded }) {
       toast.error('Please fill in all required fields');
       return;
     }
-
-    const reportData = {
+const reportData = {
       projectName: selectedProject.id,
       employeeName: selectedEmployee.id,
       jobRole: selectedJobRole,
@@ -114,7 +112,8 @@ export default function AddReport({ onReportAdded }) {
         </Select>
       </FormControl>
       
-      <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ m: 1, ml: 3, mt: 2, minWidth: 435 }}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
         <DesktopDatePicker
           label="Date"
           inputFormat="MM/DD/YYYY"
@@ -122,6 +121,7 @@ export default function AddReport({ onReportAdded }) {
           onChange={(newDate) => setSelectedDate(newDate)}
           renderInput={(params) => <TextField {...params} className='reportdate' />}
         />
+        </FormControl>
       </LocalizationProvider>
       
       <TextField
