@@ -45,6 +45,7 @@ export default function AddReport({ onReportAdded }) {
         console.error('Error fetching data:', error);
       }
     };
+    
 
     fetchData();
   }, []);
