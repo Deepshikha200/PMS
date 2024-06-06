@@ -29,7 +29,7 @@ export default function Devloper_header() {
     };
     const handleClose = () => {
       setAnchorEl(null);
-    };
+    };  
 
 
     function show()
@@ -57,7 +57,7 @@ export default function Devloper_header() {
             <div className="container">
                 <Navbar expand="lg" className="bg-body-tertiary p-4">
                     <Navbar.Brand>
-                        <Link  className='/developer'>
+                        <Link>
                             <img src="antierlogo.webp" alt="logo" className="logo" height={40}/>
                         </Link>
                     </Navbar.Brand>
@@ -68,14 +68,14 @@ export default function Devloper_header() {
                                 style={{ maxHeight: '100px' }}
                                 navbarScroll
                             >
-                                <div className='search rounded border bg-white'>
+                                {/* <div className='search rounded border bg-white'>
                               <InputBase  sx={{ ml: 1, flex: 1,pl:2}} placeholder="Search "
                                 //  inputProps={{ 'aria-label': 'search google maps' }}
                                   />
                                 <IconButton type="button" sx={{marginLeft:'75px' }} aria-label="search">
                                  <SearchIcon />
                                     </IconButton>
-                                    </div>
+                                    </div> */}
                             </Nav>
                         
                             

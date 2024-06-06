@@ -35,9 +35,9 @@ export default function Header({ onSearch }) {
     const handleClose = () => {
       setAnchorEl(null);
     };
-    const handleSearch = () => {
-        onSearch(searchQuery);
-      };
+    // const handleSearch = () => {
+    //     onSearch(searchQuery);
+    //   };
     
 
     function show()
@@ -77,7 +77,7 @@ export default function Header({ onSearch }) {
                                 style={{ maxHeight: '100px' }}
                                 navbarScroll
                             >
-                                <div className='search rounded border bg-white'>
+                                {/* <div className='search rounded border bg-white'>
                                 <InputBase
           sx={{ ml: 1, flex: 1, pl: 2 }}
           placeholder="Search"
@@ -87,7 +87,7 @@ export default function Header({ onSearch }) {
         <IconButton type="button" sx={{ marginLeft: '75px' }} aria-label="search" onClick={handleSearch}>
           <SearchIcon />
         </IconButton>
-                                    </div>
+                                    </div> */}
                             </Nav>
                         
                             

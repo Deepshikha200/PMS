@@ -13,7 +13,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function CreateProject({ onProjectCreated }) {
+export default function CreateProject({ onProjectCreated, isEditing, projectData,selectedProject }) {
   const [projectName, setProjectName] = useState('');
   const [status, setStatus] = useState('');
   const [hourlyRate, setHourlyRate] = useState('');
@@ -22,6 +22,8 @@ export default function CreateProject({ onProjectCreated }) {
   const [availableTeams, setAvailableTeams] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [jobRoles, setJobRoles] = useState([]);
+  const [teamId,setTeamId] = useState("")
+  console.log(selectedProject?.team[0]?.jobRole,"selectedProject")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,8 +31,6 @@ export default function CreateProject({ onProjectCreated }) {
         const teamsResponse = await axios.get('http://localhost:5050/api/teams');
         const membersResponse = await axios.get('http://localhost:5050/api/email');
         const jobRolesResponse = await axios.get('http://localhost:5050/api/jobrole');
-        
-        console.log("Job Roles:", jobRolesResponse.data);
         
         setAvailableTeams(teamsResponse.data);
         setAvailableMembers(membersResponse.data);
@@ -43,17 +43,30 @@ export default function CreateProject({ onProjectCreated }) {
   
     fetchData();
   }, []);
-  
+
+  useEffect(() => {
+    if (projectData) {
+      setProjectName(projectData.ProjectName || '');
+      setStatus(projectData.status || '');
+      setHourlyRate(projectData.hourlyRate || '');
+      setBudget(projectData.budget || '');
+      setRows(projectData.team ? projectData.team.map((member, index) => ({
+        id: index + 1,
+        jobRole: member.jobRole || '',
+        team: member.team || '',
+        member: member.member || ''
+      })) : [{ id: 1, jobRole: '', team: '', member: '' }]);
+    }
+  }, [projectData]);
+
   const handleSelectMembers = async (id) => {
     try {
       const response = await axios.get(`http://localhost:5050/api/members/${id}`);
       setAvailableMembers(response.data);
-      console.log("Selected Members:", response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
     }
   };
-  
   
   const handleAddRow = () => {
     const newRow = { id: rows.length + 1, jobRole: '', team: '', member: '' };
@@ -66,18 +79,29 @@ export default function CreateProject({ onProjectCreated }) {
   };
 
   const handleChange = (id, field, value) => {
-    
     if (field === 'members') {
       const selectedMember = availableMembers.find(member => member.email === value);
-      value = selectedMember ? selectedMember._id : ''; // Use the _id or an empty string if not found
+      value = selectedMember.name ? selectedMember._id : ''; 
+    }
+    if (field === 'team') {
+      console.log(availableTeams[0].name,';;;;;;;;;;;;;',value)
+      const selectedTeam = availableTeams.find(team => team.name === value);
+      console.log(typeof selectedTeam,"selectedTeam", selectedProject)
+      value = selectedTeam ? selectedTeam.name : ''; 
+      setTeamId(selectedTeam?._id )
+
+    }
+    // Ensure that member field is set to a valid ObjectId
+    if (field === 'member' && value === '') {
+      // If value is empty, set it to null to avoid cast error
+      value = null;
     }
     const updatedRows = rows.map((row) =>
       row.id === id ? { ...row, [field]: value } : row
     );
     setRows(updatedRows);
   };
-
-
+  
   const handleCreateProject = async () => {
     const userId = localStorage.getItem('userId'); // Retrieve the user ID from localStorage
   
@@ -92,29 +116,36 @@ export default function CreateProject({ onProjectCreated }) {
       hourlyRate: hourlyRate,
       budget: budget,
       team: rows.map(row => {
+        console.log(row,"rowrow")
         const selectedMember = availableMembers.find(member => member.email === row.member);
         return {
           jobRole: row.jobRole,
-          team: row.team,
-          member: selectedMember ? selectedMember._id : ''
+          team: teamId?teamId:null,
+          member: selectedMember ? selectedMember._id : undefined 
         };
-      }),
+      }).filter(row => row.member !== undefined), 
       createdBy: userId
     };
+    
   
     try {
-      const response = await axios.post('http://localhost:5050/api/projects', projectData);
-      console.log('Project created successfully!', response);
+      let response;
+      if (isEditing && projectData.id) {
+        response = await axios.put(`http://localhost:5050/api/projects/${projectData.id}`, projectData);
+        toast.success('Project updated successfully!');
+      } else {
+        response = await axios.post('http://localhost:5050/api/projects', projectData);
+        toast.success('Project created successfully!');
+      }
       onProjectCreated();
-      // toast.success('Project created successfully!');
-
-     
+      console.log('Project created/updated successfully!', response);
     } catch (error) {
-      console.error('Error creating project:', error);
-      toast.error('Failed to create project. Please try again.');
+      console.error('Error creating/updating project:', error);
+      toast.error('Failed to create/update project. Please try again.');
     }
   };
-  
+
+
   return (
     <div className='createproject'>
       <ToastContainer />
@@ -123,14 +154,14 @@ export default function CreateProject({ onProjectCreated }) {
         id="outlined-basic"
         label="Project Name"
         variant="outlined"
-        value={projectName}
+        value={projectName||selectedProject?.name}
         onChange={(e) => setProjectName(e.target.value)}
       />
       <FormControl className='status'>
         <InputLabel>Status</InputLabel>
         <Select
           label='Status'
-          value={status}
+          value={status?status:selectedProject?.status?selectedProject?.status:""}
           onChange={(e) => setStatus(e.target.value)}
         >
           <MenuItem value="Start">Start</MenuItem>
@@ -143,7 +174,8 @@ export default function CreateProject({ onProjectCreated }) {
         id="outlined-basic"
         label="Hourly Rate"
         variant="outlined"
-        value={hourlyRate}
+        value={hourlyRate?hourlyRate:selectedProject?.hourlyRate?selectedProject?.hourlyRate:""}
+
         type="number"
         onChange={(e) => setHourlyRate(e.target.value)}
       />
@@ -153,31 +185,29 @@ export default function CreateProject({ onProjectCreated }) {
         label="Budget"
         variant="outlined"
         type="number"
-        value={budget}
+        value={budget?budget:selectedProject?.budget?selectedProject?.budget:""}
+
         onChange={(e) => setBudget(e.target.value)}
       />
       <hr />
       <InputLabel className="projectteam text-black">Project Team</InputLabel>
-      {console.log(rows,'rowsrowsrowsrows')}
       {rows.map((item) => (
-      
         <div key={item.id}>
           <FormControl sx={{ m: 1, ml: 4, mt: 2, minWidth: 186 }}>
             <InputLabel>Job role</InputLabel>
             <Select
-                label='Job Role'
-                value={item.jobRole}
-                onChange={(e) => {
-                  handleChange(item.id, 'jobRole', e.target.value);
-                  handleSelectMembers(e.target.value); 
-                }}
-              >
-                {jobRoles.map((role) => (
-                
-                  <MenuItem key={role._id} value={role._id}>{role.name}</MenuItem>
-                ))}
-              </Select>
+              label='Job Role'
+              value={item.jobRole?item?.jobRole:selectedProject?.team[0]?.jobRole?selectedProject?.team[0]?.jobRole:""}
 
+              onChange={(e) => {
+                handleChange(item.id, 'jobRole', e.target.value);
+                handleSelectMembers(e.target.value); 
+              }}
+            >
+              {jobRoles.map((role) => (
+                <MenuItem key={role._id} value={role._id}>{role.name}</MenuItem>
+              ))}
+            </Select>
           </FormControl>
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
             <Autocomplete
@@ -185,7 +215,8 @@ export default function CreateProject({ onProjectCreated }) {
               renderInput={(params) => (
                 <TextField {...params} label="Teams" variant="outlined" />
               )}
-              value={item.team}
+              value={item?.team?item?.team:selectedProject?.team[0]?.team?selectedProject?.team[0]?.team:""}
+
               onChange={(e, newValue) => handleChange(item.id, 'team', newValue)}
             />
           </FormControl>
@@ -195,18 +226,19 @@ export default function CreateProject({ onProjectCreated }) {
               renderInput={(params) => (
                 <TextField {...params} label="Members" variant="outlined" />
               )}
-              value={item.member}
+              value={item.member?item?.member:selectedProject?.team[0]?.member?selectedProject?.team[0]?.member:""}
+
               onChange={(e, newValue) => handleChange(item.id, 'member', newValue)}
             />
           </FormControl>
-
           {item.id !== 1 && <DeleteIcon className='deleteicon' onClick={() => handleDeleteRow(item.id)} />}
         </div>
       ))}
       <Link className='addnewemp text-black text-decoration-none' onClick={handleAddRow}>+ Add new Employee</Link>
       <hr />
-      <Button className="createproject-btn float-end" variant="contained" onClick={handleCreateProject}>Create</Button>
+      <Button className="createproject-btn float-end" variant="contained" onClick={handleCreateProject}>
+        {isEditing ? 'Update' : 'Create'}
+      </Button>
     </div>
   );
 }
-

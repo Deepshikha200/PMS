@@ -26,6 +26,65 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Function to generate a random password
+const generateRandomPassword = (length = 10) => {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$!%*?&';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
+// Forgot password route
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Generate a new random password
+    const randomPassword = generateRandomPassword();
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+    // Update user's password in the database
+    user.password = hashedPassword;
+    await user.save();
+
+    // Send email with the new password
+    const mailOptions = {
+      from: 'deepshikhap9877@gmail.com',
+      to: user.email,
+      subject: 'Your New Password for Antier Solutions',
+      html: `<div>
+        <h1 style="text-align:center">Antier Solutions</h1>
+        <h3>Your password has been reset successfully.</h3>
+        <p>Hi ${user.firstName},</p>
+        <p>Your new password is: <strong>${randomPassword}</strong></p>
+        <p>Please log in using this new password. Once logged in, you can change it from your profile page.</p>
+        <br/>
+        <p>Best regards,<br/>Antier Solutions Team</p>
+      </div>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error sending email:', error);
+        return res.status(500).json({ error: 'Error sending email' });
+      } else {
+        console.log('Email sent:', info.response);
+        return res.status(200).json({ message: 'New password sent to your email address' });
+      }
+    });
+  } catch (error) {
+    console.error('Error processing forgot password:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 router.get('/developer/projects/:developerId', async (req, res) => {
   const { developerId } = req.params;
@@ -40,6 +99,7 @@ router.get('/developer/projects/:developerId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 router.post('/addreport', async (req, res) => {
@@ -84,7 +144,7 @@ router.get('/reports', async (req, res) => {
   try {
     const reports = await Report.find()
       .populate('projectName', 'name')
-      .populate('employeeName', 'firstName lastName')
+      .populate('employeeName', 'email')
       .populate({
         path: 'jobRole',
         select: 'name'
@@ -114,6 +174,8 @@ router.post('/jobrole', async (req, res) => {
 router.get('/teams', async (req, res) => {
   try {
     const newTeam = await Team.find();
+   
+
     res.status(200).json(newTeam);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -323,6 +385,8 @@ router.post('/projects', async (req, res) => {
       team,
       createdBy
     });
+    console.log(newProject, 'req.bodyreq.bodyreq.body')
+
     await newProject.save();
 
     // Update the user to include the created project
@@ -334,6 +398,7 @@ router.post('/projects', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 
@@ -350,29 +415,44 @@ router.get('/projects', async (req, res) => {
 });
 
 
+
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
     const userProjects = await Project.find({ createdBy: userId })
-      .populate('createdBy', 'firstName lastName')  // Fetching both firstName and lastName
-      .populate('team.member', 'firstName lastName'); // Ensure this matches your schema
+      .populate('createdBy', 'firstName lastName') // Fetching both firstName and lastName
+      .populate({
+        path: 'team.member',
+        select: 'firstName lastName',
+      })
+      .populate({
+        path: 'team.jobRole',
+        select: 'name', 
+      })
+      .populate({
+        path: 'team.team',
+        select: 'name', 
+      });
 
-    // Format the projects to include full name of the creator
     const formattedProjects = userProjects.map(project => ({
       ...project._doc,
       createdBy: `${project.createdBy.firstName} ${project.createdBy.lastName}`,
+      team: project.team ? project.team.name : '',
       team: project.team.map(member => ({
-        ...member._doc,
-        name: `${member.member.firstName} ${member.member.lastName}`
-      }))
+        jobRole: member.jobRole ? member.jobRole.name : '',
+        name: member.member ? `${member.member.firstName} ${member.member.lastName}` : '',
+      })),
     }));
+
+    console.log(formattedProjects, 'formattedProjectsformattedProjects')
 
     res.json(formattedProjects);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching projects' });
   }
 });
+
 
 router.post('/change-password', async (req, res) => {
   const { userId, currentPassword, newPassword } = req.body;
@@ -440,23 +520,45 @@ router.delete('/projects/:id', async (req, res) => {
   }
 });
 
-
-router.get('/projects/:projectId/team', async (req, res) => {
-  const { projectId } = req.params;
+router.get('/projects/:id', async (req,res)=>{
+  const {id } = req.params;
   try {
-    const project = await Project.findById(projectId).populate('team.member', 'firstName lastName');
+    const user = await Project.findById(id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+})
+
+router.put('/projects/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, status, hourlyRate, budget, team } = req.body;
+
+  // Validate input data
+  if (!name || !status || !hourlyRate || !budget || !team) {
+    return res.status(400).json({ error: 'Please fill in all required fields' });
+  }
+
+  try {
+    // Find the project by ID
+    const project = await Project.findById(id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    const teamMembers = project.team.map(member => ({
-      id: member.member._id,
-      name: `${member.member.firstName} ${member.member.lastName}`
-    }));
+    // Update the project's details
+    project.name = name;
+    project.status = status;
+    project.hourlyRate = hourlyRate;
+    project.budget = budget;
+    project.team = team;
 
-    res.status(200).json(teamMembers);
+    // Save the updated project
+    const updatedProject = await project.save();
+
+    res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
   } catch (error) {
-    console.error('Error fetching team members:', error);
+    console.error('Error updating project:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

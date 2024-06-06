@@ -18,6 +18,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getDataById } from './getDataById';
 
 
   export default function Project() {
@@ -71,9 +72,15 @@ import 'react-toastify/dist/ReactToastify.css';
     fetchUserProjects();
   }
 
-  function handleUpdateProject(project) {
-    setSelectedProject(project);
-    setShowCreateProject(true);
+  async function handleUpdateProject(project) {
+    console.log(project?.id,"PROJECT")
+    if(project?.id){
+     const projectDetail = await  getDataById(project.id)
+     setSelectedProject(projectDetail);
+     setShowCreateProject(true);
+    }
+    return
+   
   }
 
   const handleOpenDeleteDialog = (projectId) => {
@@ -181,7 +188,7 @@ import 'react-toastify/dist/ReactToastify.css';
           <Modal.Title>Create Project</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <CreateProject onProjectCreated={handleProjectCreation} />
+          <CreateProject onProjectCreated={handleProjectCreation} selectedProject={selectedProject}/>
         </Modal.Body>
       </Modal>
 
