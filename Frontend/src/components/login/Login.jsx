@@ -58,7 +58,7 @@ export default function Login() {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post('http://localhost:5050/api/login', formData);
+      const response = await axios.post('http://localhost:5050/api/v1/login', formData);
 
       // Display success toast
       toast.success('Login successful!');

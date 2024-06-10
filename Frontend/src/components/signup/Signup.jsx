@@ -26,8 +26,8 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    empname: '',
+    empid: '',
     email: '',
     phoneNo: '',
     jobRole: '', // This will hold the ObjectId of the selected job role
@@ -72,22 +72,13 @@ export default function Signup() {
       }
     }
     // Validate email domain
-    if (name === 'firstName') {
+    if (name === 'empname') {
       if (!validateName(value)) {
         setNameError('Please use Alphabets');
       } else {
         setNameError('');
       }
     }
-
-    if (name === 'lastName') {  
-      if (!validateName(value)) {
-        setNameError('Please use Alphabets');
-      } else {
-        setNameError('');
-      }
-    }
-    //Validate name domain 
 
     if (name === 'email') {
       if (!validateEmailDomain(value)) {
@@ -105,8 +96,7 @@ export default function Signup() {
         setPasswordError('');
       }
     }
-
-    // Validate password confirmation
+// Validate password confirmation
     if (name === 'confirmPassword') {
       if (value !== formData.password) {
         setConfirmPasswordError('Passwords do not match.');
@@ -168,7 +158,7 @@ export default function Signup() {
       };
   
       // Send form data to backend for signup
-      const response = await axios.post('http://localhost:5050/api/signup', preparedFormData);
+      const response = await axios.post('http://localhost:5050/api/v1/signup', preparedFormData);
       toast.success(response.data.message);
       setTimeout(() => {
         navigate('/');
@@ -191,7 +181,7 @@ export default function Signup() {
         <img className='m-5' src='signup.svg' height={400} width={400} alt='Signup' />
         <form className='signup-item' onSubmit={handleSubmit}>
           <h3 className='text-center mt-4'>Sign up</h3>
-          <TextField
+          {/* <TextField
             className='signup-textfield m-3 '
             id='firstName'
             name='firstName'
@@ -201,14 +191,35 @@ export default function Signup() {
             onChange={handleChange}
             required
            
+          /> */}
+          <TextField
+            className='signup-textfield m-3 '
+            id='empname'
+            name='empname'
+            label='Name'
+            variant='filled'
+            value={formData.lastName}
+            onChange={handleChange}
+            color='warning' 
+            required
           />
            {/* {nameError && <div className="nameError">{nameError}</div>} */}
-
-          <TextField
+{/* <TextField
             className='signup-textfield m-3 '
             id='lastName'
             name='lastName'
             label='Last Name'
+            variant='filled'
+            value={formData.lastName}
+            onChange={handleChange}
+            color='warning' 
+            required
+          /> */}
+          <TextField
+            className='signup-textfield m-3 '
+            id='empid'
+            name='empid'
+            label='Employee ID'
             variant='filled'
             value={formData.lastName}
             onChange={handleChange}
@@ -300,6 +311,5 @@ export default function Signup() {
     </div>
   );
 }
-
 
 

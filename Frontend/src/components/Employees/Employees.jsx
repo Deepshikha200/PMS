@@ -51,7 +51,7 @@ export default function Employees() {
   
         return {
           id: index + 1,
-          name: `${employee.firstName} ${employee.lastName}`,
+          name: `${employee.empname}`,
           role: employee.jobRole.name,
           email: employee.email,
           status: status

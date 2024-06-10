@@ -10,9 +10,10 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 const auth = require('./routers/routes'); // Adjust the path as necessary
+const users = require('./routers/auth')
 
 app.use('/api', auth);
-
+app.use('/api/v1', users);
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI)
   .then(() => console.log('MongoDB connected'))
