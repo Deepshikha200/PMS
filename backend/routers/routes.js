@@ -241,38 +241,30 @@ router.put('/projects/:id', async (req, res) => {
   }
 });
 
-
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
     const userProjects = await Project.find({ createdBy: userId })
-      .populate('createdBy', 'firstName lastName') // Fetching both firstName and lastName
-      .populate({
-        path: 'team.member',
-        select: 'firstName lastName',
-      })
+      .populate('createdBy', 'empname') // Fetching empname
       .populate({
         path: 'team.jobRole',
-        select: 'name',
+        select: 'name'
       })
       .populate({
-        path: 'team.team',
-        select: 'name',
+        path: 'team.empname',
+        select: 'empname empid'
       });
 
     const formattedProjects = userProjects.map(project => ({
       ...project._doc,
-      createdBy: `${project.createdBy.firstName} ${project.createdBy.lastName}`,
-      team: project.team ? project.team.name : '',
+      createdBy: project.createdBy.empname,
       team: project.team.map(member => ({
         jobRole: member.jobRole ? member.jobRole.name : '',
-        name: member.member ? `${member.member.firstName} ${member.member.lastName}` : '',
-      })),
+        name: member.empname ? member.empname.empname : '',
+        empid: member.empname ? member.empname.empid : ''
+      }))
     }));
-
-
-    // console.log(formattedProjects, 'formattedProjectsformattedProjects')
 
     res.json(formattedProjects);
   } catch (error) {
@@ -308,6 +300,18 @@ router.delete('/projects/:id', async (req, res) => {
   }
 });
 
+// get all the projects
+router.get('/projects', async (req, res) => {
+  try {
+    const user = await Project.find();
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+})
+
+
+// get the project by id 
 router.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {

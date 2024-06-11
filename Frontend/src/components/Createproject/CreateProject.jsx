@@ -64,7 +64,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
   };
 
   const handleChange = (id, field, value) => {
-    let updatedValue = value;
+    let updatedRows;
 
     if (field === 'empname' || field === 'empid') {
       const selectedMember = availableMembers.find(member => {
@@ -72,12 +72,22 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
         if (field === 'empid') return member.empid === value;
       });
 
-      updatedValue = selectedMember ? selectedMember._id : '';
+      if (selectedMember) {
+        updatedRows = rows.map((row) =>
+          row.id === id
+            ? { ...row, empname: selectedMember._id, empid: selectedMember._id }
+            : row
+        );
+      } else {
+        updatedRows = rows.map((row) =>
+          row.id === id ? { ...row, [field]: value } : row
+        );
+      }
+    } else {
+      updatedRows = rows.map((row) =>
+        row.id === id ? { ...row, [field]: value } : row
+      );
     }
-
-    const updatedRows = rows.map((row) =>
-      row.id === id ? { ...row, [field]: updatedValue } : row
-    );
 
     setRows(updatedRows);
   };
@@ -187,7 +197,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
               renderInput={(params) => (
                 <TextField {...params} label="Emp Name" variant="outlined" />
               )}
-              value={availableMembers.find(member => member._id === item.empname)?.empname || ""}
+              value={availableMembers.find(member => member._id === item.empname)?._id || ""}
               onChange={(e, newValue) => handleChange(item.id, 'empname', newValue)}
             />
           </FormControl>
@@ -197,7 +207,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
               renderInput={(params) => (
                 <TextField {...params} label="Emp ID" variant="outlined" />
               )}
-              value={availableMembers.find(member => member._id === item.empid)?.empid || ""}
+              value={availableMembers.find(member => member._id === item.empid)?._id || ""}
               onChange={(e, newValue) => handleChange(item.id, 'empid', newValue)}
             />
           </FormControl>
