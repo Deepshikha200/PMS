@@ -3,7 +3,7 @@ import './Developerreport.css'
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
-import AddReport from '../add_report/AddReport.jsx'
+import DeveloperAddReport from './developer_addreport/DeveloperAddReport.jsx'
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 
@@ -84,7 +84,7 @@ export default function DeveloperReport() {
           <Modal.Title>Report</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AddReport onReportAdded={handleCloseReport} />
+          <DeveloperAddReport onReportAdded={handleCloseReport} />
         </Modal.Body>
       </Modal>
     </>

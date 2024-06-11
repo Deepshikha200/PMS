@@ -227,116 +227,116 @@ const isAuthenticated = (req, res, next) => {
 };
 
 // Route to handle user registration
-router.post('/signup', async (req, res) => {
-  const { firstName, lastName, email, phoneNo, jobRole, password } = req.body;
+// router.post('/signup', async (req, res) => {
+//   const { firstName, lastName, email, phoneNo, jobRole, password } = req.body;
 
-  // Check if email already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ error: 'Email already exists' });
-  }
+//   // Check if email already exists
+//   const existingUser = await User.findOne({ email });
+//   if (existingUser) {
+//     return res.status(400).json({ error: 'Email already exists' });
+//   }
 
-  // Validation for name: only letters allowed
-  const nameRegex = /^[a-zA-Z]+$/;
-  if (!firstName.match(nameRegex) || !lastName.match(nameRegex)) {
-    return res.status(400).json({ error: 'First name and last name must contain only letters' });
-  }
+//   // Validation for name: only letters allowed
+//   const nameRegex = /^[a-zA-Z]+$/;
+//   if (!firstName.match(nameRegex) || !lastName.match(nameRegex)) {
+//     return res.status(400).json({ error: 'First name and last name must contain only letters' });
+//   }
 
-  // Validation for email domain
-  if (!validateEmailDomain(email)) {
-    return res.status(400).json({ error: 'Invalid email domain. Please use an email address with @antiersolutions.com domain' });
-  }
+//   // Validation for email domain
+//   if (!validateEmailDomain(email)) {
+//     return res.status(400).json({ error: 'Invalid email domain. Please use an email address with @antiersolutions.com domain' });
+//   }
 
-  // Validation for password
-  if (!validatePassword(password)) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
-  }
+//   // Validation for password
+//   if (!validatePassword(password)) {
+//     return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
+//   }
 
-  // Hash the password before saving
-  const hashedPassword = await bcrypt.hash(password, 10);
+//   // Hash the password before saving
+//   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    phoneNo,
-    jobRole,
-    password: hashedPassword,
-  });
+//   const newUser = new User({
+//     firstName,
+//     lastName,
+//     email,
+//     phoneNo,
+//     jobRole,
+//     password: hashedPassword,
+//   });
 
-  try {
-    await newUser.save();
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+//   try {
+//     await newUser.save();
+//     res.status(201).json({ message: 'User created successfully', user: newUser });
 
-    // Send welcome email
-    const mailOptions = {
-      from: 'deepshikhap9877@gmail.com',
-      to: newUser.email,
-      subject: 'Welcome to Antier Solutions!',
-      html: `<div>
-        <h1 style="text-align:center">Antier Solutions</h1>
-        <img src="email.svg" alt="Welcome Image" style="max-width:500px;">
-        <h3>Welcome! Your registration has been successfully completed.</h3>
-        Hi ${newUser.firstName},
-        <br/>
-        This application helps your team generate, organize, track your projects. <br/>
-        You are able to check projects assigned to you and can send daily remarks on the progress of the project.
-        <br/><br/>
-        Here are your details for reference:
-        <ul>
-          <li>Name: ${newUser.firstName} ${newUser.lastName}</li>
-          <li>Email: ${newUser.email}</li>
-          <li>Phone Number: ${newUser.phoneNo}</li>
-        </ul>
-        <br/>
-        If you have any questions or need further assistance, please don't hesitate to reach out to us.
-        <br/><br/>
-        We look forward to your contributions and wish you great success in your new role.
-        <br/><br/>
-        Best regards,<br/>
-        Antier Solutions Team
-      </div>`
-    };
+//     // Send welcome email
+//     const mailOptions = {
+//       from: 'deepshikhap9877@gmail.com',
+//       to: newUser.email,
+//       subject: 'Welcome to Antier Solutions!',
+//       html: `<div>
+//         <h1 style="text-align:center">Antier Solutions</h1>
+//         <img src="email.svg" alt="Welcome Image" style="max-width:500px;">
+//         <h3>Welcome! Your registration has been successfully completed.</h3>
+//         Hi ${newUser.firstName},
+//         <br/>
+//         This application helps your team generate, organize, track your projects. <br/>
+//         You are able to check projects assigned to you and can send daily remarks on the progress of the project.
+//         <br/><br/>
+//         Here are your details for reference:
+//         <ul>
+//           <li>Name: ${newUser.firstName} ${newUser.lastName}</li>
+//           <li>Email: ${newUser.email}</li>
+//           <li>Phone Number: ${newUser.phoneNo}</li>
+//         </ul>
+//         <br/>
+//         If you have any questions or need further assistance, please don't hesitate to reach out to us.
+//         <br/><br/>
+//         We look forward to your contributions and wish you great success in your new role.
+//         <br/><br/>
+//         Best regards,<br/>
+//         Antier Solutions Team
+//       </div>`
+//     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         console.log('Error sending email:', error);
+//       } else {
+//         console.log('Email sent:', info.response);
+//       }
+//     });
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
 
 
 
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
 
-  try {
-    const user = await User.findOne({ email }).populate('jobRole', 'name');
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
+//   try {
+//     const user = await User.findOne({ email }).populate('jobRole', 'name');
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, jobRole: user.jobRole.name },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+//     const token = jwt.sign(
+//       { userId: user._id, email: user.email, jobRole: user.jobRole.name },
+//       JWT_SECRET,
+//       { expiresIn: '1h' }
+//     );
 
-    res.json({ message: 'Login successful', token, userId: user._id, jobRole: user.jobRole.name });
-  } catch (error) {
-    res.status(500).json({ error: 'An unexpected error occurred' });
-  }
-});
+//     res.json({ message: 'Login successful', token, userId: user._id, jobRole: user.jobRole.name });
+//   } catch (error) {
+//     res.status(500).json({ error: 'An unexpected error occurred' });
+//   }
+// });
 
 
 router.get('/members/:jobRole', async (req, res) => {

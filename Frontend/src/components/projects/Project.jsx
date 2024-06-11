@@ -20,8 +20,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getDataById } from './getDataById';
 
-
-  export default function Project() {
+   export default function Project() {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [projects, setProjects] = useState([]);
   const [projectCreated, setProjectCreated] = useState(false);
@@ -113,12 +112,13 @@ import { getDataById } from './getDataById';
     { field: 'srno', headerName: 'Sr no.', width: 100, headerAlign: 'center', align: 'center' },
     { field: 'ProjectName', headerName: 'Project Name', width: 400, headerAlign: 'center', align: 'center' },
     { field: 'Createdby', headerName: 'Created By', width: 200, headerAlign: 'center', align: 'center' },
-    { field: 'Date', headerName: 'Date', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'Date', headerName: 'Date', width: 100, headerAlign: 'center', align: 'center' },
     { field: 'status', headerName: 'Status', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'Members', headerName: 'Members', width: 300, headerAlign: 'center', align: 'center' },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
       renderCell: (params) => (

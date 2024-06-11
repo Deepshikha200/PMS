@@ -11,10 +11,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import Textarea from '@mui/joy/Textarea';
 import dayjs from 'dayjs';
-import './AddReport.css';
+import './Developer_AddReport.css';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { TimeField } from '@mui/x-date-pickers/TimeField';
+import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 export default function AddReport({ onReportAdded }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -27,20 +30,6 @@ export default function AddReport({ onReportAdded }) {
   const [shiftStart, setShiftStart] = useState('');
   const [shiftEnd, setShiftEnd] = useState('');
   const [remarks, setRemarks] = useState('');
-  const [value, setValue] = React.useState('');
-  const [error, setError] = React.useState(false);
-
-  const handleChange = (event) => {
-    const inputValue = event.target.value;
-    setValue(inputValue);
-
-    const regex = /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/; // Regex for hh.mm format
-    if (regex.test(inputValue)) {
-      setError(false);
-    } else {
-      setError(true);
-    }
-  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,7 +76,20 @@ const reportData = {
       toast.error('Error adding report');
     }
   };
+  const [value, setValue] = React.useState('');
+  const [error, setError] = React.useState(false);
 
+  const handleChange = (event) => {
+    const inputValue = event.target.value;
+    setValue(inputValue);
+
+    const regex = /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/; // Regex for hh.mm format
+    if (regex.test(inputValue)) {
+      setError(false);
+    } else {
+      setError(true);
+    }
+  }
   return (
     <div className='addreport'>
       <ToastContainer />
@@ -101,8 +103,18 @@ const reportData = {
           )}
         />
       </FormControl>
+      {/* <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
+        <Autocomplete
+          options={employeeNames}
+          getOptionLabel={(option) => option.label}
+          onChange={(event, value) => setSelectedEmployee(value)}
+          renderInput={(params) => (
+            <TextField {...params} label="Employee Name" variant="outlined" />
+          )}
+        />
+      </FormControl> */}
       
-      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
+      {/* <FormControl sx={{ m: 1, ml: 3, mt: 2, minWidth: 200 }}>
         <InputLabel id="job-role-label">Job Role</InputLabel>
         <Select
           labelId="job-role-label"
@@ -115,28 +127,7 @@ const reportData = {
             <MenuItem key={role._id} value={role.name}>{role.name}</MenuItem>
           ))}
         </Select>
-      </FormControl>
-      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
-      <Autocomplete
-        disablePortal
-        id="combo-box-demo"
-        options={[]} // Empty options array
-        renderInput={(params) => <TextField {...params} label="Emp ID" />}
-      />
-    </FormControl>
-      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 210 }}>
-        <Autocomplete
-          options={employeeNames}
-          getOptionLabel={(option) => option.label}
-          onChange={(event, value) => setSelectedEmployee(value)}
-          renderInput={(params) => (
-            <TextField {...params} label="Employee Name" variant="outlined" />
-          )}
-        />
-      </FormControl>
-    
-      
-     
+      </FormControl> */}
       
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
@@ -149,8 +140,8 @@ const reportData = {
         />
         </FormControl>
       </LocalizationProvider>
-{/*       
-      <TextField
+      
+      {/* <TextField
         className='shiftstart'
         label="Shift Start"
         variant="outlined"
@@ -179,7 +170,6 @@ const reportData = {
       />
       </FormControl>
     </LocalizationProvider>
-
       <Textarea
         className="remarks"
         placeholder="Remarks"

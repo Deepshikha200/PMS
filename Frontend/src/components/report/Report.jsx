@@ -6,6 +6,10 @@ import Button from '@mui/material/Button';
 import AddReport from '../add_report/AddReport.jsx';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 export default function Report() {
   const [showReport, setShowReport] = useState(false);
@@ -34,15 +38,34 @@ export default function Report() {
   };
 
   const columns = [
-    { field: 'projectName', headerName: 'Project Name', width: 200, headerAlign: 'center', align: 'center', valueGetter: (params) => params.row.projectName?.name || 'N/A' },
+    { field: 'projectName', headerName: 'Project Name', width: 300, headerAlign: 'center', align: 'center', valueGetter: (params) => params.row.projectName?.name || 'N/A' },
+    { field: 'jobRole', headerName: 'Job Role', width: 150, headerAlign: 'center', align: 'center' },
     { field: 'employeeName', headerName: 'Employee Name', width: 250, headerAlign: 'center', align: 'center', valueGetter: (params) => `${params.row.employeeName.email}` },
-    { field: 'jobRole', headerName: 'Job Role', width: 200, headerAlign: 'center', align: 'center' },
     { field: 'date', headerName: 'Date', width: 150, headerAlign: 'center', align: 'center', valueGetter: (params) => new Date(params.row.date).toLocaleDateString() },
-    { field: 'shiftStart', headerName: 'Shift Start', width: 150, headerAlign: 'center', align: 'center' },
-    { field: 'shiftEnd', headerName: 'Shift End', width: 150, headerAlign: 'center', align: 'center' },
-    { field: 'remarks', headerName: 'Remarks', width: 300, headerAlign: 'center', align: 'center' }
-  ];
+    // { field: 'shiftStart', headerName: 'Shift Start', width: 150, headerAlign: 'center', align: 'center' },
+    // { field: 'shiftEnd', headerName: 'Shift End', width: 150, headerAlign: 'center', align: 'center' },
+    { field: 'logHours', headerName: 'Log Hours', width: 150, headerAlign: 'center', align: 'center' },
+    { field: 'remarks', headerName: 'Remarks', width: 300, headerAlign: 'center', align: 'center' },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <div>
+          <IconButton >
+            <EditIcon />
+          </IconButton>
+          <IconButton >
+            <DeleteIcon />
+          </IconButton>
+        </div>
+      )
+    }
 
+  ];
+   
   return (
     <>
       <div className='report'>

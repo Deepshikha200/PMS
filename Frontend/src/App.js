@@ -46,17 +46,17 @@ function App() {
             <Route
               path="report"
               element={
-                <ProtectedRoute>
+                
                   <Report />
-                </ProtectedRoute>
+                
               }
             />
             <Route
               path="project"
               element={
-                <ProtectedRoute>
+                
                   <Project />
-                </ProtectedRoute>
+                
               }
             />
           </Route>

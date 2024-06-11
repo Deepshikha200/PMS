@@ -33,15 +33,16 @@ export default function DeveloperProject() {
   };
 
   const columns = [   
-     { field: 'id', headerName: 'Sr no.', width: 400, headerAlign: 'center', align: 'center' },
-    { field: 'name', headerName: 'Project Name', width: 400, headerAlign: 'left', align: 'left' },
+     { field: 'id', headerName: 'Sr no.', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'name', headerName: 'Project Name', width: 600, headerAlign: 'left', align: 'left' },
     { field: 'createdBy', headerName: 'Created By', width: 300, headerAlign: 'center', align: 'center' },
-    { field: 'team', headerName: 'Team', width: 300, headerAlign: 'center', align: 'center' },
+    { field: 'status', headerName: 'Status', width: 300, headerAlign: 'center', align: 'center' },
+    // { field: 'team', headerName: 'Team', width: 300, headerAlign: 'center', align: 'center' },
   ];
 
   return (
     <>
-      <h2 className='text-center fs-1 fw-bold mt-5'>Project List</h2>
+      <h2 className='text-center fs-1 fw-bold mt-5'>Assigned Projects</h2>
       <Box sx={{ height: 650, width: '100%', mt: 3, p: 5 }}>
         <DataGrid
           rows={rows}

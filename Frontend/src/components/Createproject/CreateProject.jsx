@@ -164,9 +164,11 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
           value={status?status:selectedProject?.status?selectedProject?.status:""}
           onChange={(e) => setStatus(e.target.value)}
         >
-          <MenuItem value="Start">Start</MenuItem>
-          <MenuItem value="Active">Active</MenuItem>
-          <MenuItem value="Completed">Completed</MenuItem>
+         
+          <MenuItem value="Active">To Do</MenuItem>
+          <MenuItem value="Completed">In Progress</MenuItem>
+          <MenuItem value="Completed">Done</MenuItem>
+          <MenuItem value="Deactive">Deactivate</MenuItem>
         </Select>
       </FormControl>
       <TextField
@@ -209,7 +211,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
+          {/* <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
             <Autocomplete
               options={availableTeams.map(team => team.name)}
               renderInput={(params) => (
@@ -219,16 +221,24 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
 
               onChange={(e, newValue) => handleChange(item.id, 'team', newValue)}
             />
-          </FormControl>
+          </FormControl> */}
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 216 }}>
             <Autocomplete
               options={availableMembers.map(member => member.email)}
               renderInput={(params) => (
-                <TextField {...params} label="Members" variant="outlined" />
+                <TextField {...params} label="Emp Name" variant="outlined" />
               )}
               value={item.member?item?.member:selectedProject?.team[0]?.member?selectedProject?.team[0]?.member:""}
 
               onChange={(e, newValue) => handleChange(item.id, 'member', newValue)}
+            />
+          </FormControl>
+          <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
+            <Autocomplete
+              options={availableMembers.map(member => member.email)}
+              renderInput={(params) => (
+                <TextField {...params} label="Emp ID" variant="outlined" />
+              )}
             />
           </FormControl>
           {item.id !== 1 && <DeleteIcon className='deleteicon' onClick={() => handleDeleteRow(item.id)} />}
