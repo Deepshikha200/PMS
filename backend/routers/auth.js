@@ -236,6 +236,23 @@ router.post('/change-password', async (req, res) => {
 });
 
 
+router.get('/name/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the user by their ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Send the user's name in the response
+    res.json({ name: user.empname }); // Assuming the user's name is stored in the 'empname' field
+  } catch (error) {
+    console.error('Error fetching user name:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 module.exports = router;
 

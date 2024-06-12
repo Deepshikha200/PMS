@@ -26,7 +26,7 @@ export default function Login() {
     setShowPassword(false);
   }
 
-  const handleForgotPass = () => { 
+  const handleForgotPass = () => {
     setShowForgotPasswordModal(true);
   };
 
@@ -74,7 +74,7 @@ export default function Login() {
       // Navigate based on jobRole after a delay
       setTimeout(() => {
         if (jobRole === 'DEVELOPER') {
-          navigate('/developer');
+          navigate('/developer/developer-project');
         } else {
           navigate('/project');
         }
@@ -123,7 +123,7 @@ export default function Login() {
               )}
               <Link className="login-forgotpass-link text-decoration-none" onClick={handleForgotPass}>Forgot password?</Link>
               <Button className="login-btn m-4" variant="contained" type="submit">Sign in</Button>
-              <div className='mt-4'>Don't have an account? 
+              <div className='mt-4'>Don't have an account?
                 <Link to="/signup" className='text-decoration-none'> Sign up</Link>
               </div>
             </form>

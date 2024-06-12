@@ -1,0 +1,29 @@
+.addreport .reportdate
+{
+    margin:10px 20px;
+   /* width: 425px; */
+  
+}
+.addreport .shiftstart
+{
+    margin: 20px;
+    width: 195px;
+}
+.addreport .shiftend
+{
+    margin-top: 20px;
+    width: 195px;
+    margin-left: 15px;
+}
+.addreport .remarks
+{
+    margin: 15px 18px;
+    width: 435px;
+
+}
+.addreport .addbtn
+{
+    width: 100px;
+    height: 40px;
+}
+

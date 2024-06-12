@@ -8,7 +8,6 @@ export default function Employees() {
   const [rows, setRows] = useState([]);
   const [jobRoles, setJobRoles] = useState([]);
 
-
   useEffect(() => {
     const fetchJobRoles = async () => {
       try {
@@ -22,10 +21,10 @@ export default function Employees() {
         console.error('Error fetching job roles:', error);
       }
     };
-  
+
     fetchJobRoles();
   }, []);
-  
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -37,18 +36,22 @@ export default function Employees() {
         throw new Error('Failed to fetch employee data');
       }
       const employeesData = await employeesResponse.json();
-  
+
       const projectsResponse = await fetch('http://localhost:5050/api/projects');
       if (!projectsResponse.ok) {
         throw new Error('Failed to fetch project data');
       }
       const projectsData = await projectsResponse.json();
-  
+
       const mappedData = employeesData.map((employee, index) => {
-        // Check if the employee is associated with any project
-        const isOccupied = projectsData.some(project => project.team.some(member => member.member === employee._id));
+        // Check if the employee is associated with any active project
+        const isOccupied = projectsData.some(project =>
+          project.status === 'Active' &&
+          project.team.some(member => member.empid === employee._id)
+        );
+
         const status = isOccupied ? 'Occupied' : 'Available';
-  
+
         return {
           id: index + 1,
           name: `${employee.empname}`,
@@ -57,27 +60,27 @@ export default function Employees() {
           status: status
         };
       });
-  
+
       setRows(mappedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
-  
+
   const columns = [
     { field: 'id', headerName: 'Sr no.', width: 200, headerAlign: 'center', align: 'center' },
     { field: 'name', headerName: 'Name', width: 300, headerAlign: 'center', align: 'center' },
     { field: 'role', headerName: 'Job Role', width: 300, headerAlign: 'center', align: 'center', type: 'singleSelect', valueOptions: jobRoles.map(role => role.name), editable: true },
     { field: 'email', headerName: 'Email', width: 300, headerAlign: 'center', align: 'center' },
-    { field: 'status', headerName: 'Status', width: 300, headerAlign: 'center', align: 'center', renderCell: (params) => (
+    {
+      field: 'status', headerName: 'Status', width: 300, headerAlign: 'center', align: 'center', renderCell: (params) => (
         <div style={{ color: params.value === 'Available' ? 'green' : 'red' }}>
           {params.value}
         </div>
       )
     }
   ];
-  
-  
+
   return (
     <div className='report'>
       <h2 className='mt-5 mb-3 text-center fs-1 fw-bold '>Employees List</h2>

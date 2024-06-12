@@ -3,7 +3,7 @@ import './Developerreport.css'
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
-import AddReport from '../add_report/AddReport.jsx'
+import DeveloperAddReport from './developer_addreport/DeveloperAddReport.jsx'
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 
@@ -36,13 +36,14 @@ export default function DeveloperReport() {
 
 
   const columns = [
-    { field: 'projectName', headerName: 'Project Name', width: 200, headerAlign: 'center', align: 'center', valueGetter: (params) => params.row.projectName?.name || 'N/A' },
-    { field: 'employeeName', headerName: 'Employee Name', width: 250, headerAlign: 'center', align: 'center', valueGetter: (params) => `${params.row.employeeName.email}` },
-    { field: 'jobRole', headerName: 'Job Role', width: 200, headerAlign: 'center', align: 'center' },
-    { field: 'date', headerName: 'Date', width: 150, headerAlign: 'center', align: 'center', valueGetter: (params) => new Date(params.row.date).toLocaleDateString() },
-    { field: 'shiftStart', headerName: 'Shift Start', width: 150, headerAlign: 'center', align: 'center' },
-    { field: 'shiftEnd', headerName: 'Shift End', width: 150, headerAlign: 'center', align: 'center' },
-    { field: 'remarks', headerName: 'Remarks', width: 300, headerAlign: 'center', align: 'center' }
+    { field: 'projectName', headerName: 'Project Name', width: 400, headerAlign: 'center', align: 'center', valueGetter: (params) => params.row.projectName?.name || 'N/A' },
+    // { field: 'employeeName', headerName: 'Employee Name', width: 250, headerAlign: 'center', align: 'center' },
+    // { field: 'jobRole', headerName: 'Job Role', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'date', headerName: 'Date', width: 200, headerAlign: 'center', align: 'center', valueGetter: (params) => new Date(params.row.date).toLocaleDateString() },
+    // { field: 'shiftStart', headerName: 'Shift Start', width: 150, headerAlign: 'center', align: 'center' },
+    // { field: 'shiftEnd', headerName: 'Shift End', width: 150, headerAlign: 'center', align: 'center' },
+       { field: 'loghours', headerName: 'Log Hours', width: 200, headerAlign: 'center', align: 'center' },
+    { field: 'remarks', headerName: 'Remarks', width: 500, headerAlign: 'center', align: 'center' }
   ];
   
   return (
@@ -84,7 +85,7 @@ export default function DeveloperReport() {
           <Modal.Title>Report</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AddReport onReportAdded={handleCloseReport} />
+          <DeveloperAddReport onReportAdded={handleCloseReport} />
         </Modal.Body>
       </Modal>
     </>

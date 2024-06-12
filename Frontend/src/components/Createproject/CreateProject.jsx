@@ -21,20 +21,22 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
   const [rows, setRows] = useState([{ id: 1, jobRole: '', empname: '', empid: '' }]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [jobRoles, setJobRoles] = useState([]);
+  const [filteredMembers, setFilteredMembers] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const membersResponse = await axios.get('http://localhost:5050/api/empname');
         const jobRolesResponse = await axios.get('http://localhost:5050/api/jobrole');
-        
+
         setAvailableMembers(membersResponse.data);
         setJobRoles(jobRolesResponse.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -67,15 +69,19 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
     let updatedRows;
 
     if (field === 'empname' || field === 'empid') {
+
       const selectedMember = availableMembers.find(member => {
         if (field === 'empname') return member.empname === value;
         if (field === 'empid') return member.empid === value;
       });
 
+      console.log(selectedMember, "selectedMember")
+
       if (selectedMember) {
+        console.log(selectedMember, 'selectedMemberselectedMember')
         updatedRows = rows.map((row) =>
           row.id === id
-            ? { ...row, empname: selectedMember._id, empid: selectedMember._id }
+            ? { ...row, empname: selectedMember.empname, empid: selectedMember.empid }
             : row
         );
       } else {
@@ -92,6 +98,9 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
     setRows(updatedRows);
   };
 
+
+
+
   const handleCreateProject = async () => {
     const userId = localStorage.getItem('userId');
 
@@ -105,6 +114,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
       status: status,
       hourlyRate: hourlyRate,
       budget: budget,
+
       team: rows.map(row => ({
         jobRole: row.jobRole,
         empname: row.empname,
@@ -113,8 +123,7 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
       createdBy: userId
     };
 
-    console.log('Project data:', projectData);
-
+    console.log('Project data:', projectData, rows);
     try {
       let response;
       if (isEditing && selectedProject?._id) {
@@ -131,6 +140,14 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
       toast.error('Failed to create/update project. Please try again.');
     }
   };
+
+
+  const handleJobRoleChange = (jobRoleId) => {
+    const filtered = availableMembers.filter(member => member.jobRole === jobRoleId);
+    setFilteredMembers(filtered);
+  };
+
+
 
   return (
     <div className='createproject'>
@@ -184,33 +201,36 @@ export default function CreateProject({ onProjectCreated, isEditing, projectData
               value={item.jobRole || ""}
               onChange={(e) => {
                 handleChange(item.id, 'jobRole', e.target.value);
+                handleJobRoleChange(e.target.value); // Call handleJobRoleChange here
               }}
-            > 
+            >
               {jobRoles.map((role) => (
                 <MenuItem key={role._id} value={role._id}>{role.name}</MenuItem>
               ))}
             </Select>
+
           </FormControl>
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 216 }}>
             <Autocomplete
-              options={availableMembers.map(member => member.empname)}
+              options={filteredMembers.map(member => member.empname)} // Use member name instead of ID
               renderInput={(params) => (
                 <TextField {...params} label="Emp Name" variant="outlined" />
               )}
-              value={availableMembers.find(member => member._id === item.empname)?._id || ""}
+              value={item.empname || ""} // Use item.empname directly as it represents the member's name
               onChange={(e, newValue) => handleChange(item.id, 'empname', newValue)}
             />
           </FormControl>
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
             <Autocomplete
-              options={availableMembers.map(member => member.empid)}
+              options={filteredMembers.map(member => member.empid)}
               renderInput={(params) => (
                 <TextField {...params} label="Emp ID" variant="outlined" />
               )}
-              value={availableMembers.find(member => member._id === item.empid)?._id || ""}
+              value={item.empid || ""} // Use item.empid directly as it represents the member's ID
               onChange={(e, newValue) => handleChange(item.id, 'empid', newValue)}
             />
           </FormControl>
+
           {item.id !== 1 && <DeleteIcon className='deleteicon' onClick={() => handleDeleteRow(item.id)} />}
         </div>
       ))}

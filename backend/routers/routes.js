@@ -7,8 +7,6 @@ const nodemailer = require('nodemailer');
 const Project = require('../models/Project');
 const JobRole = require('../models/jobRoles');
 const Report = require('../models/Report');
-
-
 const Team = require("../models/Team")
 
 const JWT_SECRET = 'your_jwt_secret_key';
@@ -37,61 +35,59 @@ router.get('/developer/projects/:developerId', async (req, res) => {
 });
 
 
+// router.get('/reports', async (req, res) => {
+//   try {
+//     const reports = await Report.find();
+//     res.json(reports);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Error fetching reports' });
+//   }
+// });
+
+router.get('/reports', async (req, res) => {
+  try {
+    const reports = await Report.find()
+      .populate('projectName', 'name')  // Assuming projectName refers to a Project ID
+      .populate('employeeName', 'empname');  // Assuming employeeName refers to a User ID
+    res.json(reports);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
+
 
 router.post('/addreport', async (req, res) => {
+  const { projectName, employeeName, jobRole, date, logHours, remarks } = req.body;
+
+  if (!projectName || !employeeName || !jobRole || !date || !logHours) {
+    return res.status(400).json({ error: 'Please fill in all required fields' });
+  }
+
   try {
-    const { projectName, employeeName, jobRole, date, shiftStart, shiftEnd, remarks } = req.body;
-
-    // Validate input data
-    if (!projectName || !employeeName || !jobRole || !date || !shiftStart || !shiftEnd) {
-      return res.status(400).json({ error: 'Please fill in all required fields' });
-    }
-
-    // Ensure project and employee exist
-    const project = await Project.findById(projectName);
-    const employee = await User.findById(employeeName);
-
-    if (!project || !employee) {
-      return res.status(404).json({ error: 'Project or employee not found' });
-    }
-
-    // Create new report
     const newReport = new Report({
       projectName,
       employeeName,
       jobRole,
       date,
-      shiftStart,
-      shiftEnd,
+      logHours,
       remarks,
     });
 
-    // Save report to database
-    const savedReport = await newReport.save();
-    res.status(201).json(savedReport);
+    await newReport.save();
+    res.status(201).json({ message: 'Report added successfully' });
   } catch (error) {
-    console.error('Error adding report:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Error adding report' });
   }
 });
 
 
-router.get('/reports', async (req, res) => {
-  try {
-    const reports = await Report.find()
-      .populate('projectName', 'name')
-      .populate('employeeName', 'email')
-      .populate({
-        path: 'jobRole',
-        select: 'name'
-      });
 
-    res.status(200).json(reports);
-  } catch (error) {
-    console.error('Error fetching reports:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+
+
+
+
+
+
 
 // POST create a new job role
 router.post('/jobrole', async (req, res) => {
@@ -263,6 +259,7 @@ router.get('/user/:userId', async (req, res) => {
         jobRole: member.jobRole ? member.jobRole.name : '',
         name: member.empname ? member.empname.empname : '',
         empid: member.empname ? member.empname.empid : ''
+
       }))
     }));
 
@@ -316,6 +313,7 @@ router.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const user = await Project.findById(id);
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -354,6 +352,50 @@ router.put('/projects/:id', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+
+
+router.get('/projectFind', async (req, res) => {
+  const { projectId } = req.query;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'Project ID is required' });
+  }
+
+  try {
+    // Find the project with the specified ID and populate the employees
+    const project = await Project.findById(projectId).populate('empname');
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Send the list of employees assigned to this project
+    res.json(project.employees);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/employeeById/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const employee = await User.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    res.json({ empid: employee.empid, name: employee.empname, jobRole: employee.jobRole });
+  } catch (error) {
+    console.error('Error fetching employee by ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 
 module.exports = router;
