@@ -14,8 +14,6 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
-import Checkbox from '@mui/material/Checkbox';
-import ListItemText from '@mui/material/ListItemText';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,9 +22,12 @@ export default function Report() {
   const [showReport, setShowReport] = useState(false);
   const [rows, setRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedProjects, setSelectedProjects] = useState([]);
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(''); // State to hold the selected project
+  const [selectedEmployee, setSelectedEmployee] = useState(''); // State to hold the selected employee
   const [currentReport, setCurrentReport] = useState(null); // State to hold the currently selected report for editing
+  const [projectEmployeesMap, setProjectEmployeesMap] = useState({}); // Map to store employees for each project
+  const [individualLogHours, setIndividualLogHours] = useState(0); // State to hold individual log hours
+  const [allEmployeesLogHours, setAllEmployeesLogHours] = useState(0); // State to hold all employees log hours
 
   useEffect(() => {
     fetchData();
@@ -35,16 +36,32 @@ export default function Report() {
   const fetchData = async () => {
     try {
       const response = await axios.get('http://localhost:5050/api/reports');
+      console.log(response,'responseresponse')
       const data = response.data.map((report, index) => ({
         ...report,
         projectName: report.projectName?.name || 'N/A',
         employeeId: report.employeeId?.empid || 'N/A',
         employeeName: report.employeeId?.empname || 'N/A',
-        logHours: report.logHours,
+        logHours: parseFloat(report.logHours), // Parse log hours as float
         date: new Date(report.date).toLocaleDateString(),
         srNo: index + 1, // Serial number
       }));
       setRows(data);
+
+      // Build a map of project names to their respective employee IDs
+      const projectEmployees = {};
+      data.forEach((report) => {
+        const projectName = report.projectName;
+        const employeeId = report.employeeId;
+        if (projectEmployees[projectName]) {
+          if (!projectEmployees[projectName].includes(employeeId)) {
+            projectEmployees[projectName].push(employeeId);
+          }
+        } else {
+          projectEmployees[projectName] = [employeeId];
+        }
+      });
+      setProjectEmployeesMap(projectEmployees);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to fetch reports. Please check the console for more details.');
@@ -71,12 +88,18 @@ export default function Report() {
 
   const handleProjectChange = (event) => {
     const { target: { value } } = event;
-    setSelectedProjects(typeof value === 'string' ? value.split(',') : value);
+    setSelectedProject(value); // Update selected project
+    setSelectedEmployee(''); // Reset selected employee when project changes
   };
 
   const handleEmployeeChange = (event) => {
     const { target: { value } } = event;
-    setSelectedEmployees(typeof value === 'string' ? value.split(',') : value);
+    setSelectedEmployee(value); // Update selected employee
+  };
+
+  const handleSelectAllEmployees = () => {
+    const allEmployees = projectEmployeesMap[selectedProject] || [];
+    setSelectedEmployee('');
   };
 
   const handleEdit = (report) => {
@@ -95,6 +118,9 @@ export default function Report() {
       toast.error('Failed to delete report. ');
     }
   };
+
+  // Populate project names and employee IDs for filtering, ensuring unique values
+  const projectNames = Array.from(new Set(rows.map((row) => row.projectName)));
 
   const columns = [
     { field: 'srNo', headerName: 'Sr. No.', width: 100, headerAlign: 'center', align: 'center' },
@@ -124,9 +150,16 @@ export default function Report() {
     }
   ];
 
+  // Calculate total log hours for individual and all employees' contributions
+  const calculateTotalLogHours = () => {
+    const individualTotal = filteredRows.reduce((total, row) => total + parseFloat(row.logHours), 0);
+    const allEmployeesTotal = rows.filter(row => selectedProject && row.projectName === selectedProject).reduce((total, row) => total + parseFloat(row.logHours), 0);
+    return { individualTotal, allEmployeesTotal };
+  };
+
   const filteredRows = rows.filter(row =>
-    (selectedProjects.length === 0 || selectedProjects.includes(row.projectName)) &&
-    (selectedEmployees.length === 0 || selectedEmployees.includes(row.employeeId))
+    (!selectedProject || row.projectName === selectedProject) &&
+    (!selectedEmployee || row.employeeId === selectedEmployee)
   );
 
   return (
@@ -153,15 +186,13 @@ export default function Report() {
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel>Project Name</InputLabel>
               <Select
-                multiple
-                value={selectedProjects}
+                value={selectedProject}
                 onChange={handleProjectChange}
-                renderValue={(selected) => selected.join(', ')}
               >
-                {rows.map((row) => (
-                  <MenuItem key={row.projectName} value={row.projectName}>
-                    <Checkbox checked={selectedProjects.indexOf(row.projectName) > -1} />
-                    <ListItemText primary={row.projectName} />
+                <MenuItem value="">All</MenuItem>
+                {projectNames.map((projectName) => (
+                  <MenuItem key={projectName} value={projectName}>
+                    {projectName}
                   </MenuItem>
                 ))}
               </Select>
@@ -171,15 +202,13 @@ export default function Report() {
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel>Employee Id</InputLabel>
               <Select
-                multiple
-                value={selectedEmployees}
+                value={selectedEmployee}
                 onChange={handleEmployeeChange}
-                renderValue={(selected) => selected.join(', ')}
               >
-                {rows.map((row) => (
-                  <MenuItem key={row.employeeId} value={row.employeeId}>
-                    <Checkbox checked={selectedEmployees.indexOf(row.employeeId) > -1} />
-                    <ListItemText primary={row.employeeId} />
+                <MenuItem value="">All</MenuItem>
+                {(projectEmployeesMap[selectedProject] || []).map((employeeId) => (
+                  <MenuItem key={employeeId} value={employeeId}>
+                    {employeeId}
                   </MenuItem>
                 ))}
               </Select>
@@ -207,6 +236,13 @@ export default function Report() {
               },
             }}
           />
+        </Box>
+
+        <Box sx={{ mt: 3, p: 5 }}>
+          <Button variant="contained" color="primary" onClick={() => {
+            const { individualTotal, allEmployeesTotal } = calculateTotalLogHours();
+            alert(`Total Log Hours:\n\nIndividual Contribution: ${individualTotal}\nAll Employees' Contribution: ${allEmployeesTotal}`);
+          }}>Total Log Hours</Button>
         </Box>
       </div>
       <Modal show={showReport} onHide={handleCloseReport} className="report-modal">

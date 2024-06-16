@@ -795,3 +795,219 @@
 //   );
 // }
 
+
+import React, { useState, useEffect } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import { Autocomplete } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import Textarea from '@mui/joy/Textarea';
+import dayjs from 'dayjs';
+import './AddReport.css';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+export default function AddReport({ onReportAdded }) {
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [projectNames, setProjectNames] = useState([]);
+  const [employeeId, setEmployeeId] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState('');
+  const [selectedEmployeeJobRole, setSelectedEmployeeJobRole] = useState('');
+  const [remarks, setRemarks] = useState('');
+  const [logHours, setLogHours] = useState('');
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        console.error('User ID not found. Please login.');
+        return;
+      }
+
+      try {
+        const projectsResponse = await axios.get(`http://localhost:5050/api/user/${userId}`);
+
+        setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+
+    const savedProjectId = localStorage.getItem('selectedProjectId');
+    const savedEmpId = localStorage.getItem('selectedEmpId');
+    if (savedProjectId) {
+      handleProjectChange(null, { id: savedProjectId });
+    }
+    if (savedEmpId) {
+      handleEmployeeIdChange(null, { id: savedEmpId });
+    }
+  }, []);
+
+  const handleProjectChange = async (event, value) => {
+    if (!value) return;
+
+    try {
+      localStorage.setItem('selectedProjectId', value.id);
+      setSelectedProject(value);
+
+      const response = await axios.get(`http://localhost:5050/api/project/members/${value.id}`);
+      console.log(response, "response!!")
+      const employeeOptions = response.data.team.map(member => ({ label: `${member.empid.empid}`, id: member.empid._id }));
+      setEmployeeId(employeeOptions);
+    } catch (error) {
+      console.error('Error fetching project members:', error);
+    }
+  };
+
+
+  const handleEmployeeIdChange = async (event, value) => {
+    if (!value) return;
+    try {
+      localStorage.setItem('selectedEmpId', value.id);
+      setSelectedEmployeeId(value.id);
+    
+      console.log(value.id, 'value.id');
+      const response = await axios.get(`http://localhost:5050/api/employeeById/${value.id}`);
+      const { name, jobRole } = response.data;
+      setSelectedEmployeeName(name);
+      setSelectedEmployeeJobRole(jobRole);
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+    }
+  };
+
+  const handleChange = (event) => {
+    const inputValue = event.target.value;
+    setLogHours(inputValue);
+
+    const regex = /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/; // Regex for hh.mm format
+    if (regex.test(inputValue)) {
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
+  const handleAddReport = async () => {
+    if (!selectedProject || !selectedEmployeeId || !selectedEmployeeName || !selectedEmployeeJobRole || !selectedDate || !logHours || error) {
+      toast.error('Please fill in all required fields with valid data.');
+      return;
+    }
+
+    const reportData = {
+      projectName: selectedProject.id,
+      employeeId: selectedEmployeeId,
+      employeeName: selectedEmployeeName,
+      jobRole: selectedEmployeeJobRole,
+      date: selectedDate.format('YYYY-MM-DD'),
+      logHours,
+      remarks,
+    };
+
+    try {
+      await axios.post('http://localhost:5050/api/addreport', reportData);
+      toast.success('Report added successfully!');
+      if (onReportAdded) {
+        onReportAdded();
+      }
+    } catch (error) {
+      console.error('Error adding report:', error);
+      toast.error('Failed to add report.');
+    }
+  };
+
+  return (
+    <div className='addreport'>
+      <ToastContainer />
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
+        <Autocomplete
+          options={projectNames}
+          getOptionLabel={(option) => option.label}
+          onChange={handleProjectChange}
+          renderInput={(params) => (
+            <TextField {...params} label="Project Name" variant="outlined" />
+          )}
+        />
+      </FormControl>
+
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
+        <Autocomplete
+          disablePortal
+          id="combo-box-demo"
+          options={employeeId}
+          getOptionLabel={(option) => option.label}
+          onChange={handleEmployeeIdChange}
+          renderInput={(params) => <TextField {...params} label="Emp ID" />}
+        />
+      </FormControl>
+
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, width: 200 }}>
+        <TextField
+          label="Employee Name"
+          variant="outlined"
+          value={selectedEmployeeName}
+          disabled
+        />
+      </FormControl>
+
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, width: 200 }}>
+        <TextField
+          label="Job Role"
+          variant="outlined"
+          value={selectedEmployeeJobRole}
+          disabled
+        />
+      </FormControl>
+
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <FormControl sx={{ m: 1, ml: 2, mt: 2, width: 200 }}>
+          <DesktopDatePicker
+            label="Date"
+            inputFormat="MM/DD/YYYY"
+            value={selectedDate}
+            onChange={(newDate) => setSelectedDate(newDate)}
+            renderInput={(params) => <TextField {...params} className='reportdate' />}
+          />
+        </FormControl>
+      </LocalizationProvider>
+
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, mb: 2, minWidth: 435 }}>
+        <TextField
+          label="Log Hours"
+          variant="outlined"
+          placeholder="hh.mm"
+          value={logHours}
+          onChange={handleChange}
+          error={error}
+          helperText={error ? 'Invalid time format. Use hh.mm' : ''}
+          fullWidth
+        />
+      </FormControl>
+
+      <Textarea
+        className="remarks"
+        placeholder="Remarks"
+        minRows={3}
+        maxRows={6}
+        value={remarks}
+        onChange={(e) => setRemarks(e.target.value)}
+      />
+
+      <Button
+        className="addbtn float-end me-5 mt-3 mb-3"
+        variant="contained"
+        onClick={handleAddReport}
+      >Add
+      </Button>
+    </div>
+  );
+}

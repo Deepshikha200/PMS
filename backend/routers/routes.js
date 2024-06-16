@@ -316,6 +316,34 @@ router.get('/projects/:id', async (req, res) => {
 });
 
 
+// router.put('/projects/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { name, status, hourlyRate, budget, team } = req.body;
+
+//   try {
+//     // Find the project by ID
+//     const project = await Project.findById(id);
+//     if (!project) {
+//       return res.status(404).json({ error: 'Project not found' });
+//     }
+
+//     // Update the project's details
+//     project.name = name;
+//     project.status = status;
+//     project.hourlyRate = hourlyRate;
+//     project.budget = budget;
+//     project.team = team;
+
+//     // Save trhe updated project
+//     const updatedProject = await project.save();
+
+//     res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
+//   } catch (error) {
+//     console.error('Error updating project:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
 router.put('/projects/:id', async (req, res) => {
   const { id } = req.params;
   const { name, status, hourlyRate, budget, team } = req.body;
@@ -336,13 +364,14 @@ router.put('/projects/:id', async (req, res) => {
 
     // Save the updated project
     const updatedProject = await project.save();
-
+    console.log(updatedProject, 'updatedProjectupdatedProject')
     res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
   } catch (error) {
     console.error('Error updating project:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 router.get('/employeeById/:id', async (req, res) => {

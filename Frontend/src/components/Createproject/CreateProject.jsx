@@ -53,6 +53,7 @@ export default function CreateProject({
 
   useEffect(() => {
     if (projectData) {
+      console.log(projectData,'projectData')
       setProjectName(projectData.name || "");
       setStatus(projectData.status || "");
       setHourlyRate(projectData.hourlyRate || "");

@@ -8,7 +8,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import Textarea from '@mui/joy/Textarea';
 import dayjs from 'dayjs';
-import './AddReport.css';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -45,13 +44,9 @@ export default function AddReport({ onReportAdded, currentReport }) {
     fetchData();
 
     if (currentReport) {
-      // console.log(currentReport , 'currentReport')
       setSelectedDate(dayjs(currentReport.date));
-      setSelectedProject({
-        label: currentReport.projectName,
-        id: currentReport.projectName._id
-      });
-      setSelectedEmployeeId({ label: currentReport.employeeId, id: currentReport._id });
+      setSelectedProject({ label: currentReport.projectName, id: currentReport.projectName._id });
+      setSelectedEmployeeId({ label: currentReport.employeeId, id: currentReport.employeeId });
       setSelectedEmployeeName(currentReport.employeeName);
       setSelectedEmployeeJobRole(currentReport.jobRole);
       setLogHours(currentReport.logHours || ''); 
@@ -112,7 +107,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
       employeeName: selectedEmployeeName,
       jobRole: selectedEmployeeJobRole,
       date: selectedDate.format('YYYY-MM-DD'),
-      loghours: logHours, // Ensure field name matches backend
+      logHours,
       remarks,
     };
 
@@ -143,7 +138,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
           getOptionLabel={(option) => option.label}
           onChange={handleProjectChange}
           value={selectedProject}
-          disabled={!!currentReport} 
+          disabled={!!currentReport}
           renderInput={(params) => (
             <TextField {...params} label="Project Name" variant="outlined" />
           )}
@@ -158,8 +153,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
           getOptionLabel={(option) => option.label}
           onChange={handleEmployeeIdChange}
           value={selectedEmployeeId}
-          disabled={!!currentReport} 
-
+          disabled={!!currentReport}
           renderInput={(params) => <TextField {...params} label="Emp ID" />}
         />
       </FormControl>
