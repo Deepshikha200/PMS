@@ -110,7 +110,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
       logHours,
       remarks,
     };
-
+   
     try {
       if (currentReport) {
         await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
@@ -150,9 +150,10 @@ export default function AddReport({ onReportAdded, currentReport }) {
           disablePortal
           id="combo-box-demo"
           options={employeeId}
+          
           getOptionLabel={(option) => option.label}
           onChange={handleEmployeeIdChange}
-          value={selectedEmployeeId}
+          value={employeeId.find(emp => emp.id === selectedEmployeeId) || null}
           disabled={!!currentReport}
           renderInput={(params) => <TextField {...params} label="Emp ID" />}
         />

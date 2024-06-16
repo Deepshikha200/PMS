@@ -28,6 +28,7 @@ export default function Report() {
   const [projectEmployeesMap, setProjectEmployeesMap] = useState({}); // Map to store employees for each project
   const [individualLogHours, setIndividualLogHours] = useState(0); // State to hold individual log hours
   const [allEmployeesLogHours, setAllEmployeesLogHours] = useState(0); // State to hold all employees log hours
+  const [showContributionModal, setShowContributionModal] = useState(false); // State to handle the contribution modal visibility
 
   useEffect(() => {
     fetchData();
@@ -64,7 +65,7 @@ export default function Report() {
       setProjectEmployeesMap(projectEmployees);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to fetch reports. Please check the console for more details.');
+      toast.error('Failed to fetch reports.');
     }
   };
 
@@ -162,6 +163,17 @@ export default function Report() {
     (!selectedEmployee || row.employeeId === selectedEmployee)
   );
 
+  const handleShowContributionModal = () => {
+    const { individualTotal, allEmployeesTotal } = calculateTotalLogHours();
+    setIndividualLogHours(individualTotal);
+    setAllEmployeesLogHours(allEmployeesTotal);
+    setShowContributionModal(true);
+  };
+
+  const handleCloseContributionModal = () => {
+    setShowContributionModal(false);
+  };
+
   return (
     <>
       <ToastContainer />
@@ -239,10 +251,7 @@ export default function Report() {
         </Box>
 
         <Box sx={{ mt: 3, p: 5 }}>
-          <Button variant="contained" color="primary" onClick={() => {
-            const { individualTotal, allEmployeesTotal } = calculateTotalLogHours();
-            alert(`Total Log Hours:\n\nIndividual Contribution: ${individualTotal}\nAll Employees' Contribution: ${allEmployeesTotal}`);
-          }}>Total Log Hours</Button>
+          <Button variant="contained" color="primary" onClick={handleShowContributionModal}>Total Log Hours</Button>
         </Box>
       </div>
       <Modal show={showReport} onHide={handleCloseReport} className="report-modal">
@@ -252,6 +261,20 @@ export default function Report() {
         <Modal.Body>
           <AddReport currentReport={currentReport} onReportAdded={handleCloseReport} />
         </Modal.Body>
+      </Modal>
+      <Modal show={showContributionModal} onHide={handleCloseContributionModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Total Log Hours</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Individual Contribution: {individualLogHours} Hours</p>
+          <p>All Employees' Contribution: {allEmployeesLogHours} Hours</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseContributionModal}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );
