@@ -15,15 +15,16 @@ import Logout from '@mui/icons-material/Logout';
 import Changepassword from '../changepassword/Changepassword';
 import Modal from 'react-bootstrap/Modal';
 import InputBase from '@mui/material/InputBase';
-
+import { InputLabel } from '@mui/material';
+import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 
 <Navbar.Toggle aria-controls="navbarScroll" />
 
 
-
 export default function Header({ onSearch }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [userName, setUserName] = useState('');
 
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -38,7 +39,9 @@ export default function Header({ onSearch }) {
     // const handleSearch = () => {
     //     onSearch(searchQuery);
     //   };
-    
+    useEffect(() => {
+        fetchUserName();
+      }, []);
 
     function show()
     {
@@ -60,6 +63,19 @@ export default function Header({ onSearch }) {
         navigate('/'); // Redirect to the login page
       };
      
+
+      const fetchUserName = async () => {
+        const userId = localStorage.getItem('userId'); 
+
+        try {
+          const response = await axios.get(`http://localhost:5050/api/v1/name/${userId}`);
+          setUserName(response.data.name);
+        } catch (error) {
+          console.error('Error fetching user name:', error);
+        }
+      };
+  
+      const firstLetter = userName ? userName.charAt(0).toUpperCase() : '';
   return (
     <>
     <div className="header">
@@ -88,20 +104,18 @@ export default function Header({ onSearch }) {
           <SearchIcon />
         </IconButton>
                                     </div> */}
-                            </Nav>
-                        
-                            
+</Nav>
                             <Nav className="navbar-nav ">
                                 <div className='nav-links'>
                                     <Nav.Link as={Link} to="/project">
                                         Projects
                                     </Nav.Link>
                                 </div>
-                                <div className='nav-links'>
+                                {/* <div className='nav-links'>
                                     <Nav.Link as={Link}>
                                         Work Schedule
                                     </Nav.Link>
-                                </div>
+                                </div> */}
 
                                 <div className='links'>
                                     <Link  className='nav-link' to="/employee">Employees</Link>
@@ -113,6 +127,10 @@ export default function Header({ onSearch }) {
                                 {/* <div className='links'>
                                     <Button className="nav-btn ms-5" variant="contained">Log out</Button>
                                 </div> */}
+                                                <div className="empName ms-5">
+                                            <InputLabel className="fw-bold">{userName}</InputLabel>
+                                        </div>
+
                             
                            
                                 <div className='links'>
@@ -125,7 +143,7 @@ export default function Header({ onSearch }) {
                                         aria-haspopup="true"
                                      aria-expanded={open ? 'true' : undefined}
                                     >
-                                    <Avatar sx={{ width: 32, height: 32 }}></Avatar>
+                                      <Avatar sx={{ width: 32, height: 32 , bgcolor: "#1976D2" }}>{firstLetter}</Avatar>
                                     </IconButton>
                                     </Tooltip>
                                     <Menu
@@ -135,7 +153,7 @@ export default function Header({ onSearch }) {
                                         onClose={handleClose}
                                         onClick={handleClose}
                                         PaperProps={{
-                                            elevation: 0,
+elevation: 0,
                                             sx: {
                                                 overflow: 'visible',
                                                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
@@ -195,4 +213,3 @@ export default function Header({ onSearch }) {
     </>
   )
 }
-

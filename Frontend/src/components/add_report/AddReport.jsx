@@ -124,7 +124,7 @@ const reportData = {
         renderInput={(params) => <TextField {...params} label="Emp ID" />}
       />
     </FormControl>
-      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 210 }}>
+      <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
         <Autocomplete
           options={employeeNames}
           getOptionLabel={(option) => option.label}
@@ -139,7 +139,7 @@ const reportData = {
      
       
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
+        <FormControl sx={{ m: 1, ml: 2, mt: 2, width: 200 }}>
         <DesktopDatePicker
           label="Date"
           inputFormat="MM/DD/YYYY"
@@ -166,7 +166,7 @@ const reportData = {
       />
        */}
        <LocalizationProvider dateAdapter={AdapterDayjs}>
-       <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
+       <FormControl sx={{ m: 1, ml: 2, mt: 2, mb :2, minWidth: 435 }}>
       <TextField
         label="Log Hours"
         variant="outlined"

@@ -58,7 +58,7 @@ export default function Login() {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post('http://localhost:5050/api/login', formData);
+      const response = await axios.post('http://localhost:5050/api/v1/login', formData);
 
       // Display success toast
       toast.success('Login successful!');
@@ -74,9 +74,10 @@ export default function Login() {
       // Navigate based on jobRole after a delay
       setTimeout(() => {
         if (jobRole === 'DEVELOPER') {
-          navigate('/developer');
+          navigate('/developer/developer-project');
         } else {
           navigate('/project');
+          
         }
       }, 2000); // 2000 milliseconds delay
     } catch (error) {

@@ -14,14 +14,16 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import Changepassword from '../changepassword/Changepassword';
 import Modal from 'react-bootstrap/Modal';
-import InputBase from '@mui/material/InputBase';
-
+import InputLabel from '@mui/material/InputLabel';
+import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 
 <Navbar.Toggle aria-controls="navbarScroll" />
 export default function Devloper_header() {
    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [userName, setUserName] = useState('');
+
     const[changepass,setchangepass]=useState(false)
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -44,6 +46,23 @@ export default function Devloper_header() {
         const storedUserRole=localStorage.getItem('userRole');
         setUserRole(storedUserRole); // or 'user', 'manager', etc.
     }, []);
+
+    useEffect(() => {
+        fetchUserName();
+      }, []);
+
+    const fetchUserName = async () => {
+        const userId = localStorage.getItem('userId'); 
+
+        try {
+          const response = await axios.get(`http://localhost:5050/api/v1/name/${userId}`);
+          setUserName(response.data.name);
+        } catch (error) {
+          console.error('Error fetching user name:', error);
+        }
+      };
+
+    const firstLetter = userName ? userName.charAt(0).toUpperCase() : '';
 
     const handleLogout = () => {
         localStorage.removeItem('token'); // Clear the JWT token from localStorage
@@ -88,6 +107,10 @@ export default function Devloper_header() {
                                 <div className='links'>
                                     <Link  className='nav-link' to="/developer/developer-report">Report</Link>
                                 </div>  
+                                
+                                <div className="empName ms-5">
+                                            <InputLabel className="fw-bold">{userName}</InputLabel>
+                                        </div>
                            
                                 <div className='links'>
                                 <Tooltip title="Account settings">
@@ -99,7 +122,7 @@ export default function Devloper_header() {
                                         aria-haspopup="true"
                                      aria-expanded={open ? 'true' : undefined}
                                     >
-                                    <Avatar sx={{ width: 32, height: 32 }}></Avatar>
+                                     <Avatar sx={{ width: 32, height: 32 , bgcolor: "#1976D2" }}>{firstLetter}</Avatar>
                                     </IconButton>
                                     </Tooltip>
                                     <Menu

@@ -109,7 +109,8 @@ router.post('/signup', async (req, res) => {
         Antier Solutions Team
       </div>`
     };
-transporter.sendMail(mailOptions, (error, info) => {
+
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log('Error sending email:', error);
       } else {
@@ -195,8 +196,63 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+router.post('/change-password', async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body;
 
+  if (!userId || !currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
 
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
+    // Validate the current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Validate the new password
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+});
+
+router.get('/name/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the user by their ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Send the user's name in the response
+    res.json({ name: user.empname }); // Assuming the user's name is stored in the 'empname' field
+  } catch (error) {
+    console.error('Error fetching user name:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 module.exports = router;
+
+

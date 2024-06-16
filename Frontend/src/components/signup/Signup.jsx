@@ -80,15 +80,6 @@ export default function Signup() {
       }
     }
 
-    // if (name === 'empid') {  
-    //   if (!validateName(value)) {
-    //     setNameError('Please use Alphabets');
-    //   } else {
-    //     setNameError('');
-    //   }
-    // }
-    //Validate name domain 
-
     if (name === 'email') {
       if (!validateEmailDomain(value)) {
         setEmailError('Only @antiersolutions.com emails are allowed.');
@@ -105,8 +96,7 @@ export default function Signup() {
         setPasswordError('');
       }
     }
-
-    // Validate password confirmation
+// Validate password confirmation
     if (name === 'confirmPassword') {
       if (value !== formData.password) {
         setConfirmPasswordError('Passwords do not match.');
@@ -168,7 +158,7 @@ export default function Signup() {
       };
   
       // Send form data to backend for signup
-      const response = await axios.post('http://localhost:5050/api/signup', preparedFormData);
+      const response = await axios.post('http://localhost:5050/api/v1/signup', preparedFormData);
       toast.success(response.data.message);
       setTimeout(() => {
         navigate('/');
@@ -214,8 +204,7 @@ export default function Signup() {
             required
           />
            {/* {nameError && <div className="nameError">{nameError}</div>} */}
-
-          {/* <TextField
+{/* <TextField
             className='signup-textfield m-3 '
             id='lastName'
             name='lastName'
@@ -322,6 +311,5 @@ export default function Signup() {
     </div>
   );
 }
-
 
 

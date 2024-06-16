@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  firstName: {
+  empname: {
     type: String,
     required: true
   },
-  lastName: {
+  empid: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
   email: {
     type: String,
@@ -15,7 +16,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: function (v) {
-        return /@antiersolutions\.com$/.test(v); // Ensure the email ends with @antiersolutions.com
+       return /@antiersolutions\.com$/.test(v); // Ensure the email ends with @antiersolutions.com
       },
       message: props => `${props.value} is not a valid email!`
     }
@@ -31,7 +32,6 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   projects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
-  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' }
 });
 
 module.exports = mongoose.model('User', userSchema);

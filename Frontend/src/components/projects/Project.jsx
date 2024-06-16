@@ -33,6 +33,8 @@ import { getDataById } from './getDataById';
     fetchUserProjects();
   }, []);
 
+ 
+  
   const fetchUserProjects = async () => {
     const userId = localStorage.getItem('userId');
     console.log(userId);
@@ -107,14 +109,13 @@ import { getDataById } from './getDataById';
 
     handleCloseDeleteDialog();
   };
-
-  const columns = [
+const columns = [
     { field: 'srno', headerName: 'Sr no.', width: 100, headerAlign: 'center', align: 'center' },
     { field: 'ProjectName', headerName: 'Project Name', width: 400, headerAlign: 'center', align: 'center' },
     { field: 'Createdby', headerName: 'Created By', width: 200, headerAlign: 'center', align: 'center' },
     { field: 'Date', headerName: 'Date', width: 100, headerAlign: 'center', align: 'center' },
     { field: 'status', headerName: 'Status', width: 200, headerAlign: 'center', align: 'center' },
-    { field: 'Members', headerName: 'Members', width: 300, headerAlign: 'center', align: 'center' },
+    { field: 'members', headerName: 'Members', width: 300, headerAlign: 'center', align: 'center' },
     {
       field: 'actions',
       headerName: 'Actions',
