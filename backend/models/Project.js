@@ -10,8 +10,8 @@ const teamMemberSchema = new Schema({
 const projectSchema = new Schema({
   name: { type: String, required: true },
   status: { type: String, required: true },
-  hourlyRate: { type: Number, required: true },
-  budget: { type: Number, required: true },
+  hourlyRate: { type: Number },
+  budget: { type: Number },
   team: [teamMemberSchema],
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 });

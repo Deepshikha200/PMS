@@ -2,6 +2,9 @@
 {
     margin-left: 100px;
 }
+.report h2{
+  margin-top: 50px;
+}
 .report-modal .modal-content
 {
     height: auto;
@@ -10,7 +13,7 @@
 .report-modal .modal-header
   {
     background-color: #1976D2;
-     color:white;
+    color:white;
   }
   .report-modal .modal-title
   {
@@ -22,3 +25,22 @@
   {
     margin-left: 10px;
   }
+  .totalloghours
+  {
+    height: 50px;
+    width: 200px;
+  }
+  .loghours-modal .modal-header{
+    background-color: #1976D2;
+    color:white;
+  }
+  .loghours-modal .modal-content
+{
+    height: auto;
+    width:500px;
+}
+.hours{
+  font-weight: normal;
+  color:red;
+  margin-left: 10px;
+}

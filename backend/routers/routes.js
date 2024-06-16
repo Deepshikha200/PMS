@@ -8,9 +8,6 @@ const Project = require('../models/Project');
 const JobRole = require('../models/jobRoles');
 const Report = require('../models/Report');
 
-
-const Team = require("../models/Team")
-
 const JWT_SECRET = 'your_jwt_secret_key';
 
 const transporter = nodemailer.createTransport({
@@ -21,77 +18,58 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
-router.get('/developer/projects/:developerId', async (req, res) => {
-  const { developerId } = req.params;
-  try {
-    const projects = await Project.find({
-      team: { $elemMatch: { member: developerId } }
-    }, 'name createdBy team').populate('createdBy', 'firstName lastName').populate('team', 'firstName lastName');
-
-    res.status(200).json({ projects });
-  } catch (error) {
-    console.error('Error fetching projects:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-
-router.post('/addreport', async (req, res) => {
-  try {
-    const { projectName, employeeName, jobRole, date, shiftStart, shiftEnd, remarks } = req.body;
-
-    // Validate input data
-    if (!projectName || !employeeName || !jobRole || !date || !shiftStart || !shiftEnd) {
-      return res.status(400).json({ error: 'Please fill in all required fields' });
-    }
-
-    // Ensure project and employee exist
-    const project = await Project.findById(projectName);
-    const employee = await User.findById(employeeName);
-
-    if (!project || !employee) {
-      return res.status(404).json({ error: 'Project or employee not found' });
-    }
-
-    // Create new report
-    const newReport = new Report({
-      projectName,
-      employeeName,
-      jobRole,
-      date,
-      shiftStart,
-      shiftEnd,
-      remarks,
-    });
-
-    // Save report to database
-    const savedReport = await newReport.save();
-    res.status(201).json(savedReport);
-  } catch (error) {
-    console.error('Error adding report:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
 router.get('/reports', async (req, res) => {
   try {
-    const reports = await Report.find()
-      .populate('projectName', 'name')
-      .populate('employeeName', 'email')
-      .populate({
-        path: 'jobRole',
-        select: 'name'
-      });
+    const reports = await Report.find().populate('projectName').populate('employeeId');
+    res.json(reports);
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
 
+router.get('/reports/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const reports = await Report.find({ employeeId: userId }).populate('projectName', 'name');
     res.status(200).json(reports);
   } catch (error) {
     console.error('Error fetching reports:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Error fetching reports' });
   }
 });
+
+
+router.post('/addreport', async (req, res) => {
+  const { projectName, employeeId, employeeName, jobRole, date, logHours, remarks } = req.body;
+
+  // Validate input data
+  if (!projectName || !employeeId || !employeeName || !jobRole || !date) {
+    return res.status(400).json({ error: 'Please fill in all required fields' });
+  }
+
+  try {
+    // Create a new report
+    const newReport = new Report({
+      projectName,
+      employeeId,
+      employeeName,
+      jobRole,
+      date,
+      logHours,
+      remarks,
+    });
+
+    // Save the report to the database
+    await newReport.save();
+    res.status(201).json({ message: 'Report added successfully' });
+  } catch (error) {
+    console.error('Error adding report:', error);
+    res.status(500).json({ error: 'Error adding report' });
+  }
+});
+
 
 // POST create a new job role
 router.post('/jobrole', async (req, res) => {
@@ -107,17 +85,6 @@ router.post('/jobrole', async (req, res) => {
 });
 
 
-router.get('/teams', async (req, res) => {
-  try {
-    const newTeam = await Team.find();
-
-
-    res.status(200).json(newTeam);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 router.get('/empname', async (req, res) => {
   try {
     const users = await User.find().select('empname jobRole empid'); // Include jobRole for completeness
@@ -127,40 +94,6 @@ router.get('/empname', async (req, res) => {
   }
 });
 
-
-router.post('/teams', async (req, res) => {
-  const { name } = req.body;
-  const newTeam = new Team({
-    name
-  });
-
-  try {
-    const savedTeam = await newTeam.save();
-    res.status(201).json(savedTeam);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-
-
-// GET /api/teams
-router.get('/', async (req, res) => {
-  try {
-    const teams = await Team.find();
-    res.status(200).json(teams);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-// Middleware to check authentication
-const isAuthenticated = (req, res, next) => {
-  if (req.session && req.session.userId) {
-    return next();
-  } else {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-};
 
 
 
@@ -187,8 +120,23 @@ router.get('/employees', async (req, res) => {
   }
 });
 
+router.delete('/report/:id', async (req, res) => {
+  try {
+    const reportId = req.params.id;
+    const report = await Report.findById(reportId);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    await Report.findByIdAndDelete(reportId);
+    res.status(200).json({ message: 'Report deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // GET all job roles
+
 router.get('/jobrole', async (req, res) => {
   try {
     const jobRoles = await JobRole.find();
@@ -199,12 +147,12 @@ router.get('/jobrole', async (req, res) => {
 });
 
 
-// Route to get all projects
-
 
 router.post('/projects', async (req, res) => {
   try {
     const { name, status, hourlyRate, budget, team, createdBy } = req.body;
+
+    // Create a new Project document
     const newProject = new Project({
       name,
       status,
@@ -214,33 +162,62 @@ router.post('/projects', async (req, res) => {
       createdBy
     });
 
+    // Save the new Project
     await newProject.save();
 
-    await User.findByIdAndUpdate(createdBy, { $push: { projects: newProject._id } });
+    // Update the createdBy user's projects array to include the new Project's _id
+    await User.findByIdAndUpdate(createdBy, { $push: { projects: newProject._id } }, { new: true });
 
+    // Update each team member's projects array to include the new Project's _id
+    for (const member of team) {
+      await User.findByIdAndUpdate(member.empid, { $push: { projects: newProject._id } }, { new: true });
+    }
+
+    // Respond with the newly created Project
     res.status(201).json(newProject);
   } catch (error) {
+    // Handle any errors
+    console.error('Error creating project:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.put('/projects/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, status, hourlyRate, budget, team, createdBy } = req.body;
 
-    const updatedProject = await Project.findByIdAndUpdate(
-      id,
-      { name, status, hourlyRate, budget, team, createdBy },
-      { new: true }
-    );
+router.put('/projects/:id', async (req, res) => {
+  const projectId = req.params.id;
+  const { name, status, hourlyRate, budget, team, createdBy } = req.body;
+
+
+  try {
+    // Find the project by ID
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Update the project's details
+    project.name = name;
+    project.status = status;
+    project.hourlyRate = hourlyRate;
+    project.budget = budget;
+    project.team = team;
+    project.createdBy = createdBy;
+
+    // Save the updated project
+    const updatedProject = await project.save();
+
+    await User.findByIdAndUpdate(createdBy, { $addToSet: { projects: updatedProject._id } }, { new: true });
+
+    for (const member of team) {
+      await User.findByIdAndUpdate(member.empid, { $addToSet: { projects: updatedProject._id } }, { new: true });
+    }
 
     res.status(200).json(updatedProject);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error updating project:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
-
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -263,6 +240,7 @@ router.get('/user/:userId', async (req, res) => {
         jobRole: member.jobRole ? member.jobRole.name : '',
         name: member.empname ? member.empname.empname : '',
         empid: member.empname ? member.empname.empid : ''
+
       }))
     }));
 
@@ -312,24 +290,63 @@ router.get('/projects', async (req, res) => {
 
 
 // get the project by id 
+// router.get('/projects/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const user = await Project.findById(id).populate();
+
+//     res.status(200).json(user);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 router.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await Project.findById(id);
-    res.status(200).json(user);
+    const project = await Project.findById(id)
+      .populate({
+        path: 'team.empname team.empid', // Populate both empname and empid
+        select: 'empname empid', // Select only empname and empid fields
+      });
+
+    res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-})
+});
+
+
+// router.put('/projects/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { name, status, hourlyRate, budget, team } = req.body;
+
+//   try {
+//     // Find the project by ID
+//     const project = await Project.findById(id);
+//     if (!project) {
+//       return res.status(404).json({ error: 'Project not found' });
+//     }
+
+//     // Update the project's details
+//     project.name = name;
+//     project.status = status;
+//     project.hourlyRate = hourlyRate;
+//     project.budget = budget;
+//     project.team = team;
+
+//     // Save trhe updated project
+//     const updatedProject = await project.save();
+
+//     res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
+//   } catch (error) {
+//     console.error('Error updating project:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
 
 router.put('/projects/:id', async (req, res) => {
   const { id } = req.params;
   const { name, status, hourlyRate, budget, team } = req.body;
-
-  // Validate input data
-  if (!name || !status || !hourlyRate || !budget || !team) {
-    return res.status(400).json({ error: 'Please fill in all required fields' });
-  }
 
   try {
     // Find the project by ID
@@ -347,7 +364,7 @@ router.put('/projects/:id', async (req, res) => {
 
     // Save the updated project
     const updatedProject = await project.save();
-
+    console.log(updatedProject, 'updatedProjectupdatedProject')
     res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
   } catch (error) {
     console.error('Error updating project:', error);
@@ -356,6 +373,105 @@ router.put('/projects/:id', async (req, res) => {
 });
 
 
+
+router.get('/employeeById/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const employee = await User.findById(id).populate('jobRole', 'name');
+
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    res.json({ empid: employee.empid, name: employee.empname, jobRole: employee.jobRole.name });
+  } catch (error) {
+    console.error('Error fetching employee by ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/developer/:developerId', async (req, res) => {
+  const { developerId } = req.params;
+
+  try {
+    const projects = await Project.find({ 'team.empid': developerId }).populate('team.empid', 'empid').populate('createdBy', 'empname');
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Error fetching projects for developer:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+router.get('/project/members/:projectId', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findById(projectId).select('team').populate('team.empid', 'empid');
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.status(200).json({ team: project.team });
+  } catch (error) {
+    console.error('Error fetching project members:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+router.get('/developer/projects/:developerId', async (req, res) => {
+  const { developerId } = req.params;
+  try {
+    const projects = await Project.find({
+      'team.empid': developerId
+    });
+
+    res.status(200).json({ projects });
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+router.get('/reports/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reportId = await Report.findById(id);
+
+    res.status(200).json(reportId);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+router.put('/reports/:id', async (req, res) => {
+  const { id } = req.params;
+  const { loghours, date, remarks } = req.body;
+  try {
+
+    const updatedReport = await Report.findByIdAndUpdate(
+      id,
+      { loghours, date, remarks },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedReport) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    res.status(200).json(updatedReport);
+  } catch (error) {
+    console.error('Error updating report:', error);
+    res.status(500).json({ error: 'Error updating report' });
+  }
+});
+
+
 module.exports = router;
+
 
 

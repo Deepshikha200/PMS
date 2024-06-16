@@ -95,7 +95,7 @@ export default function Devloper_header() {
                                  <SearchIcon />
                                     </IconButton>
                                     </div> */}
-                            </Nav>
+</Nav>
                         
                             
                             <Nav className="navbar-nav ">
@@ -124,7 +124,7 @@ export default function Devloper_header() {
                                     >
                                      <Avatar sx={{ width: 32, height: 32 , bgcolor: "#1976D2" }}>{firstLetter}</Avatar>
                                     </IconButton>
-                                    </Tooltip>
+</Tooltip>
                                     <Menu
                                         anchorEl={anchorEl}
                                         id="account-menu"

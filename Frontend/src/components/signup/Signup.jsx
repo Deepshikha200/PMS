@@ -269,7 +269,7 @@ export default function Signup() {
           </FormControl>
           {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
           <TextField
-            className='signup-textfield m-3'
+            className='signup-textfield m-3 '
             id='password'
             name='password'
             label='Password'

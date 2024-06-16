@@ -46,10 +46,11 @@ font-weight: bold;
   {
     width:350px;
   }
-.empName
-{
-   /* margin-left: 20px; */
-   margin-right: -30px;
-   margin-top: 10px;
-   
-}
+  .empName
+  {
+     /* margin-left: 20px; */
+     margin-right: -30px;
+     margin-top: 9px;
+     
+  }
+  
