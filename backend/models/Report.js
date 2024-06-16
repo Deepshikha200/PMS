@@ -1,37 +1,14 @@
+
 const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
-  projectName: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Project',
-    required: true,
-  },
-  employeeName: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  jobRole: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-    required: true,
-  },
-  logHours: {
-    type: String,
-    required: true,
-    match: /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/,
-  },
-  remarks: {
-    type: String,
-    default: '',
-  },
-}, {
-  timestamps: true,
+  projectName: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+  employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  employeeName: { type: String, required: true },
+  jobRole: { type: String, required: true },
+  date: { type: Date, required: true },
+  logHours: { type: String, required: true },
+  remarks: { type: String, required: false },
 });
 
-const Report = mongoose.model('Report', reportSchema);
-
-module.exports = Report;
+module.exports = mongoose.model('Report', reportSchema);

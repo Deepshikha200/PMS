@@ -58,7 +58,7 @@ export default function Header({ onSearch }) {
     localStorage.removeItem("token"); // Clear the JWT token from localStorage
     localStorage.removeItem("userId"); // Clear the userid from localStorage
     localStorage.removeItem("jobRole"); // Clear the jobrole from localStorage
-    navigate("/"); // Redirect to the login page
+       navigate("/"); // Redirect to the login page
   };
 
   const fetchUserName = async () => {

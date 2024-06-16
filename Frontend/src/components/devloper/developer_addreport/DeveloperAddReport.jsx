@@ -1,175 +1,142 @@
 import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import Autocomplete from '@mui/material/Autocomplete';
 import FormControl from '@mui/material/FormControl';
-import { Autocomplete } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import Textarea from '@mui/joy/Textarea';
 import dayjs from 'dayjs';
-import './Developer_AddReport.css';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { TimeField } from '@mui/x-date-pickers/TimeField';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-export default function AddReport({ onReportAdded }) {
+export default function DevAddReport({ onReportAdded, currentReport }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [jobRoles, setJobRoles] = useState([]);
   const [projectNames, setProjectNames] = useState([]);
-  const [employeeNames, setEmployeeNames] = useState([]);
-  const [selectedProject, setSelectedProject] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [selectedJobRole, setSelectedJobRole] = useState('');
-  const [shiftStart, setShiftStart] = useState('');
-  const [shiftEnd, setShiftEnd] = useState('');
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [logHours, setLogHours] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const jobRolesResponse = await axios.get('http://localhost:5050/api/jobrole');
-        setJobRoles(jobRolesResponse.data);
-        
-        const projectsResponse = await axios.get('http://localhost:5050/api/projects');
+        const developerId = localStorage.getItem('userId');
+        if (!developerId) {
+          console.error('Developer ID not found.');
+          return;
+        }
+
+        // Fetch projects
+        const projectsResponse = await axios.get(`http://localhost:5050/api/developer/${developerId}`);
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
 
-        const employeesResponse = await axios.get('http://localhost:5050/api/employees');
-        const employeeOptions = employeesResponse.data.map(employee => ({ label: `${employee.email}`, id: employee._id }));
-        setEmployeeNames(employeeOptions);
+        // Set initial values if editing existing report
+        if (currentReport) {
+          setSelectedProject({
+            label: currentReport.projectName,
+            id: currentReport.projectName._id
+          });
+          setSelectedDate(dayjs(currentReport.date));
+          setLogHours(currentReport.logHours || '');
+          setRemarks(currentReport.remarks || '');
+        } else {
+          // Set default values for new report
+          setSelectedProject(null);
+          setSelectedDate(dayjs());
+          setLogHours('');
+          setRemarks('');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-    
 
     fetchData();
-  }, []);
+  }, [currentReport]);
 
   const handleAddReport = async () => {
-    if (!selectedProject || !selectedEmployee || !selectedJobRole || !shiftStart || !shiftEnd) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-const reportData = {
+    const developerId = localStorage.getItem('userId');
+    const jobRole = localStorage.getItem('jobRole');
+
+    const reportData = {
       projectName: selectedProject.id,
-      employeeName: selectedEmployee.id,
-      jobRole: selectedJobRole,
-      date: selectedDate.format('YYYY-MM-DD'), // Ensure the date format is consistent
-      shiftStart,
-      shiftEnd,
+      employeeId: developerId,
+      employeeName: developerId,
+      jobRole: jobRole,
+      date: selectedDate.format('YYYY-MM-DD'),
+      logHours,
       remarks,
     };
 
     try {
-      await axios.post('http://localhost:5050/api/addreport', reportData);
-      toast.success('Report added successfully');
+      if (currentReport) {
+        // Update existing report
+        await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
+        toast.success('Report updated successfully');
+      } else {
+        // Add new report
+        await axios.post('http://localhost:5050/api/addreport', reportData);
+        toast.success('Report added successfully');
+      }
       if (onReportAdded) onReportAdded();
     } catch (error) {
-      console.error('Error adding report:', error);
-      toast.error('Error adding report');
+      console.error('Error adding/updating report:', error);
+      toast.error('Error adding/updating report');
     }
   };
-  const [value, setValue] = React.useState('');
-  const [error, setError] = React.useState(false);
 
-  const handleChange = (event) => {
+  const handleLogHoursChange = (event) => {
     const inputValue = event.target.value;
-    setValue(inputValue);
-
+    setLogHours(inputValue);
     const regex = /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/; // Regex for hh.mm format
-    if (regex.test(inputValue)) {
-      setError(false);
-    } else {
-      setError(true);
-    }
-  }
+    setError(!regex.test(inputValue));
+  };
+
   return (
     <div className='addreport'>
-      <ToastContainer />
+      <ToastContainer /> {/* Ensure this is placed at a high level in your component hierarchy */}
       <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
         <Autocomplete
           options={projectNames}
-          getOptionLabel={(option) => option.label}
+          value={selectedProject}
           onChange={(event, value) => setSelectedProject(value)}
-          renderInput={(params) => (
-            <TextField {...params} label="Project Name" variant="outlined" />
-          )}
-        />
-</FormControl>
-      {/* <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 200 }}>
-        <Autocomplete
-          options={employeeNames}
           getOptionLabel={(option) => option.label}
-          onChange={(event, value) => setSelectedEmployee(value)}
           renderInput={(params) => (
-            <TextField {...params} label="Employee Name" variant="outlined" />
+            <TextField {...params} label="Project Name" variant="outlined" disabled={currentReport ? true : false} />
           )}
         />
-      </FormControl> */}
-      
-      {/* <FormControl sx={{ m: 1, ml: 3, mt: 2, minWidth: 200 }}>
-        <InputLabel id="job-role-label">Job Role</InputLabel>
-        <Select
-          labelId="job-role-label"
-          id="job-role-select"
-          value={selectedJobRole}
-          onChange={(e) => setSelectedJobRole(e.target.value)}
-          label="Job Role"
-        >
-          {jobRoles.map((role) => (
-            <MenuItem key={role._id} value={role.name}>{role.name}</MenuItem>
-          ))}
-        </Select>
-      </FormControl> */}
-      
+      </FormControl>
+
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
-        <DesktopDatePicker
-          label="Date"
-          inputFormat="MM/DD/YYYY"
-          value={selectedDate}
-          onChange={(newDate) => setSelectedDate(newDate)}
-          renderInput={(params) => <TextField {...params} className='reportdate' />}
-        />
+          <DesktopDatePicker
+            label="Date"
+            inputFormat="MM/DD/YYYY"
+            value={selectedDate}
+            onChange={(newDate) => setSelectedDate(newDate)}
+            renderInput={(params) => <TextField {...params} className='reportdate' />}
+          />
         </FormControl>
       </LocalizationProvider>
-      
-      {/* <TextField
-        className='shiftstart'
-        label="Shift Start"
-        variant="outlined"
-        value={shiftStart}
-        onChange={(e) => setShiftStart(e.target.value)}
-      />
-      <TextField
-        className='shiftend'
-        label="Shift End"
-        variant="outlined"
-        value={shiftEnd}
-        onChange={(e) => setShiftEnd(e.target.value)}
-      />
-       */}
-       <LocalizationProvider dateAdapter={AdapterDayjs}>
-       <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
-      <TextField
-        label="Log Hours"
-        variant="outlined"
-        placeholder="hh.mm"
-        value={value}
-        onChange={handleChange}
-        error={error}
-        helperText={error ? 'Invalid time format. Use hh.mm' : ''}
-        fullWidth
-      />
-      </FormControl>
-    </LocalizationProvider>
+
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
+          <TextField
+            label="Log Hours"
+            variant="outlined"
+            placeholder="hh.mm"
+            value={logHours}
+            onChange={handleLogHoursChange}
+            error={error}
+            helperText={error ? 'Invalid time format. Use hh.mm' : ''}
+            fullWidth
+          />
+        </FormControl>
+      </LocalizationProvider>
+
       <Textarea
         className="remarks"
         placeholder="Remarks"
@@ -184,8 +151,9 @@ const reportData = {
         variant="contained"
         onClick={handleAddReport}
       >
-        Add
+        {currentReport ? 'Update' : 'Add'} Report
       </Button>
+
     </div>
   );
 }
