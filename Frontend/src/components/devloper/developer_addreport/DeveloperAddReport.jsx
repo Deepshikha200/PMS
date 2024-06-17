@@ -97,7 +97,7 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
 
   return (
     <div className='addreport'>
-      <ToastContainer /> {/* Ensure this is placed at a high level in your component hierarchy */}
+      <ToastContainer />
       <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 435 }}>
         <Autocomplete
           options={projectNames}

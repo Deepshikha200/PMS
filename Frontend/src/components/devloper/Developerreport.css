@@ -7,7 +7,7 @@
     height: auto;
     width:500px;
 }
-.developerreport-modal .modal-header
+.developerreport-modal .modal-header 
   {
     background-color: #1976D2;
      color:white;
@@ -17,4 +17,11 @@
     text-align: center;
     width: 100%;
     font-size: 25px;
+  }
+  .totalLogHours{
+  font-size: 18px;
+  font-weight: 600;
+  }
+  .totalLogHoursContainer{
+  background-color: black;
   }

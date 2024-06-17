@@ -68,13 +68,24 @@
 }
 .signup .eyeicon
 {
-    margin-left: 205px;
+    margin-left:210px;
     margin-top: -40px;
+    position:absolute;
+    z-index: 1;
+    
+    
+}
+.signup .Cpeyeicon
+{
+    margin-left:440px;
+    margin-top: -40px;
+    position:absolute;
+    z-index: 1;
+    
+    
 }
 
 .phoneError {
 color: red;
 font-size: 12px;
 }
-
-

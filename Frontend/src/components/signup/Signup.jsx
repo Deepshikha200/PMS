@@ -16,12 +16,20 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [jobRoles, setJobRoles] = useState([]);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const handleEye = () => {
     setShowPassword(true);
   }
 
   const handleEyetwo = () => {
     setShowPassword(false);
+  }
+  const handleEyeCp = () => {
+    setShowConfirmPassword(true);
+  }
+
+  const handleEyetwoCp = () => {
+    setShowConfirmPassword(false);
   }
   const navigate = useNavigate();
 
@@ -87,8 +95,7 @@ export default function Signup() {
         setEmailError('');
       }
     }
-
-    // Validate password strength
+// Validate password strength
     if (name === 'password') {
       if (!validatePassword(value)) {
         setPasswordError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
@@ -150,8 +157,7 @@ export default function Signup() {
       if (!selectedJobRole) {
         throw new Error('Selected job role not found');
       }
-  
-      // Prepare form data with the correct jobRole ObjectId
+// Prepare form data with the correct jobRole ObjectId
       const preparedFormData = {
         ...formData,
         jobRole: selectedJobRole._id
@@ -186,7 +192,7 @@ export default function Signup() {
             id='firstName'
             name='firstName'
             label='First Name'
-            variant='filled'
+variant='filled'
             value={formData.firstName}
             onChange={handleChange}
             required
@@ -268,7 +274,7 @@ export default function Signup() {
             </Select>
           </FormControl>
           {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
-          <TextField
+<TextField
             className='signup-textfield m-3 '
             id='password'
             name='password'
@@ -285,18 +291,25 @@ export default function Signup() {
               ) : (
                 <div className='eyeicon' onClick={handleEye}><FaEye /></div>
               )}
+           
           <TextField
             className='signup-textfield m-3'
             id='confirmPassword'
             name='confirmPassword'
             label='Confirm Password'
             variant='filled'
-            type={showPassword ? "text" : "password"}
+            type={showConfirmPassword ? "text" : "password"}
             value={formData.confirmPassword}
             onChange={handleChange}
             required
    
           />
+           {showConfirmPassword ? (
+                <div className='Cpeyeicon' onClick={handleEyetwoCp}><AiFillEyeInvisible /></div>
+              ) : (
+                <div className='Cpeyeicon' onClick={handleEyeCp}><FaEye /></div>
+              )}
+
            {passwordError && <div className="passerror">{passwordError}</div>}
             {confirmPasswordError && <div className="cpasserror">{confirmPasswordError}</div>}
           
@@ -311,5 +324,3 @@ export default function Signup() {
     </div>
   );
 }
-
-

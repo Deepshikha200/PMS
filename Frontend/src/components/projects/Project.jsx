@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './Project.css';
-import { Link } from 'react-router-dom';
 import { LuCalendarClock } from "react-icons/lu";
 import Modal from 'react-bootstrap/Modal';
 import Button from '@mui/material/Button';
@@ -31,11 +30,8 @@ export default function Project() {
     fetchUserProjects();
   }, []);
 
- 
-  
   const fetchUserProjects = async () => {
     const userId = localStorage.getItem('userId');
-    console.log(userId);
     if (!userId) {
       console.error('User ID not found. Please login.');
       return;
@@ -67,6 +63,7 @@ export default function Project() {
 
   const handleProjectCreation = () => {
     setShowCreateProject(false);
+    setSelectedProject(null); // Reset selectedProject state to null
     fetchUserProjects();
   };
 
@@ -152,30 +149,18 @@ export default function Project() {
               autoHeight
               className='data-grid'
               checkboxSelection={false}
-              // sx={{
-              //   '& .MuiDataGrid-columnHeaders': {
-              //     backgroundColor: '#1976D2',
-              //     color: '#fff',
-              //   },
-              //   '& .MuiDataGrid-row:nth-of-type(even)': {
-              //     backgroundColor: '#e0e0e0',
-              //   },
-              //   '& .MuiDataGrid-row:nth-of-type(odd)': {
-              //     backgroundColor: '#f5f5f5',
-              //   },
-              // }}
               sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#1976D2',
-                color: 'white',
-              },
-              '& .MuiDataGrid-cell': {
-                backgroundColor: '#f5f5f5',
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: '#e3f2fd',
-              },
-            }}
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#1976D2',
+                  color: 'white',
+                },
+                '& .MuiDataGrid-cell': {
+                  backgroundColor: '#f5f5f5',
+                },
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: '#e3f2fd',
+                },
+              }}
             />
           </Box>
         </div>
@@ -220,3 +205,4 @@ export default function Project() {
     </div>
   );
 }
+
