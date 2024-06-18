@@ -4,14 +4,11 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js",
-    "build": "tsc main.js" 
+    "build": "tsc main.js",
+    "dev": "nodemon main.js",
+    "qa": "NODE_ENV=qa node main.js",
+    "start": "node main.js"
   },
-    "compilerOptions": {
-      "allowJs": true,
-      "outDir": "./dist",
-      "target": "es5"
-    },
   "author": "",
   "license": "ISC",
   "keywords": [],
