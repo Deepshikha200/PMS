@@ -37,10 +37,10 @@ export default function CreateProject({
     const fetchData = async () => {
       try {
         const membersResponse = await axios.get(
-          "ems-api.antiers.world/api/empname"
+          "https://ems-api.antiers.work/api/empname"
         );
         const jobRolesResponse = await axios.get(
-          "ems-api.antiers.world/api/jobrole"
+          "https://ems-api.antiers.work/api/jobrole"
         );
 
         setAvailableMembers(membersResponse.data);
@@ -154,13 +154,13 @@ export default function CreateProject({
       let response;
       if (isEditing && updatedData?._id) {
         response = await axios.put(
-          `ems-api.antiers.world/api/projectUpdate/${updatedData._id}`,
+          `https://ems-api.antiers.work/api/projectUpdate/${updatedData._id}`,
           projectData
         );
         toast.success("Project updated successfully!");
       } else {
         response = await axios.post(
-          "ems-api.antiers.world/api/projects",
+          "https://ems-api.antiers.work/api/projects",
           projectData
         );
         toast.success("Project created successfully!");

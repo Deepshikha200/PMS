@@ -36,7 +36,7 @@ export default function Report() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('ems-api.antiers.world/api/reports');
+      const response = await axios.get('https://ems-api.antiers.work/api/reports');
       const data = response.data.map((report, index) => ({
         ...report,
         projectName: report.projectName?.name || 'N/A',
@@ -110,7 +110,7 @@ export default function Report() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`ems-api.antiers.world/api/report/${id}`);
+      await axios.delete(`https://ems-api.antiers.work/api/report/${id}`);
       // Update state by filtering out the deleted report
       setRows((prevRows) => prevRows.filter(row => row._id !== id));
       toast.success('Report deleted successfully');

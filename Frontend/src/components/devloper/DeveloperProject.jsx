@@ -19,7 +19,7 @@ export default function DeveloperProject() {
         return;
       }
 
-      const response = await axios.get(`ems-api.antiers.world/api/developer/${developerId}`);
+      const response = await axios.get(`https://ems-api.antiers.work/api/developer/${developerId}`);
       const projects = response.data;
       // Transforming projects into rows for DataGrid
       const transformedRows = projects.map((project, index) => ({

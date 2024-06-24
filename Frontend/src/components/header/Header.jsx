@@ -66,7 +66,7 @@ export default function Header({ onSearch }) {
 
     try {
       const response = await axios.get(
-        `ems-api.antiers.world/api/v1/name/${userId}`
+        `https://ems-api.antiers.work/api/v1/name/${userId}`
       );
       setUserName(response.data.name);
     } catch (error) {

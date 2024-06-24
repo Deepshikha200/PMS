@@ -47,7 +47,7 @@ export default function Signup() {
   useEffect(() => {
     const fetchJobRoles = async () => {
       try {
-        const response = await axios.get('ems-api.antiers.world/api/jobrole');
+        const response = await axios.get('https://ems-api.antiers.work/api/jobrole');
         setJobRoles(response.data);
       } catch (error) {
         console.error('Error fetching job roles:', error);
@@ -164,7 +164,7 @@ export default function Signup() {
       };
   
       // Send form data to backend for signup
-      const response = await axios.post('ems-api.antiers.world/api/v1/signup', preparedFormData);
+      const response = await axios.post('https://ems-api.antiers.work/api/v1/signup', preparedFormData);
       toast.success(response.data.message);
       setTimeout(() => {
         navigate('/');
