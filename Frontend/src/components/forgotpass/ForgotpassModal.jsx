@@ -18,7 +18,7 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     try {
-//       const response = await axios.post('http://localhost:5050/api/forgotpassword', { email });
+//       const response = await axios.post('ems-api.antiers.world/api/forgotpassword', { email });
 //       toast.success(response.data.message);
 //       setTimeout(() => {
 //         navigate('/login');
@@ -62,7 +62,7 @@ export default function ForgotpassModal({ handleClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5050/api/forgot-password', { email });
+      const response = await axios.post('ems-api.antiers.world/api/forgot-password', { email });
       toast.success(response.data.message);
       navigate('/');
     } catch (error) {

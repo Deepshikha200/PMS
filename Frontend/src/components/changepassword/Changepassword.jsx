@@ -54,7 +54,7 @@ export default function Changepassword() {
 
     try {
       const userId = localStorage.getItem('userId'); 
-      const response = await axios.post('http://localhost:5050/api/change-password', {
+      const response = await axios.post('ems-api.antiers.world/api/change-password', {
         userId,
         currentPassword: oldPassword,
         newPassword,

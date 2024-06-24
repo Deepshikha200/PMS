@@ -18,6 +18,7 @@ export default function CreateProject({
   isEditing,
   projectData,
   selectedProject,
+  updatedData
 }) {
   const [projectName, setProjectName] = useState("");
   const [status, setStatus] = useState("");
@@ -30,15 +31,16 @@ export default function CreateProject({
   const [jobRoles, setJobRoles] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [empId, setEmpId] = useState("");
+  console.log(projectData, "++++++++++++PROJECT")
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const membersResponse = await axios.get(
-          "http://localhost:5050/api/empname"
+          "ems-api.antiers.world/api/empname"
         );
         const jobRolesResponse = await axios.get(
-          "http://localhost:5050/api/jobrole"
+          "ems-api.antiers.world/api/jobrole"
         );
 
         setAvailableMembers(membersResponse.data);
@@ -51,13 +53,15 @@ export default function CreateProject({
     fetchData();
   }, []);
 
+
+
   useEffect(() => {
     if (projectData) {
-      console.log(projectData,'projectData')
       setProjectName(projectData.name || "");
       setStatus(projectData.status || "");
       setHourlyRate(projectData.hourlyRate || "");
       setBudget(projectData.budget || "");
+
       setRows(
         projectData.team
           ? projectData.team.map((member, index) => ({
@@ -71,6 +75,8 @@ export default function CreateProject({
     }
   }, [projectData]);
 
+  console.log(projectData, 'projectDataprojectData')
+
   const handleAddRow = () => {
     const newRow = { id: rows.length + 1, jobRole: "", empname: "", empid: "" };
     setRows([...rows, newRow]);
@@ -83,18 +89,15 @@ export default function CreateProject({
 
   const handleChange = (item, field, value) => {
     let updatedRows;
-    console.log(item, "ididid");
     if (field === "empname" || field === "empid") {
       const selectedMember = availableMembers.find((member) => {
         if (field === "empname") return member.empname === value.empname;
         if (field === "empid") return member.empid === value.empid;
       });
 
-      console.log(selectedMember?._id, "selectedMember");
       setEmpId(selectedMember?._id);
 
       if (selectedMember) {
-        console.log(selectedMember, "selectedMemberselectedMember");
         updatedRows = rows.map((row) =>
           row.id === item.id
             ? {
@@ -126,13 +129,17 @@ export default function CreateProject({
       return;
     }
 
+    console.log(rows, "TEAEATAET")
     const projectData = {
       name: projectName,
       status: status,
       hourlyRate: hourlyRate,
       budget: budget,
-
-      team: rows
+      team: updatedData ? [{
+        jobRole: rows[0].jobRole,
+        empname: rows[0].empname,
+        empid: rows[0].empid
+      }] : rows
         .map((row) => ({
           jobRole: row.jobRole,
           empname: row.empJobRole,
@@ -142,18 +149,18 @@ export default function CreateProject({
       createdBy: userId,
     };
 
+
     try {
       let response;
-      if (isEditing && selectedProject?._id) {
-        console.log(selectedProject._id, 'selectedProject')
+      if (isEditing && updatedData?._id) {
         response = await axios.put(
-          `http://localhost:5050/api/projects/${selectedProject._id}`,
+          `ems-api.antiers.world/api/projectUpdate/${updatedData._id}`,
           projectData
         );
         toast.success("Project updated successfully!");
       } else {
         response = await axios.post(
-          "http://localhost:5050/api/projects",
+          "ems-api.antiers.world/api/projects",
           projectData
         );
         toast.success("Project created successfully!");

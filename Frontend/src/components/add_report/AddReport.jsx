@@ -33,7 +33,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
       }
 
       try {
-        const projectsResponse = await axios.get(`http://localhost:5050/api/user/${userId}`);
+        const projectsResponse = await axios.get(`ems-api.antiers.world/api/user/${userId}`);
 
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
       } catch (error) {
@@ -61,7 +61,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
     try {
       setSelectedProject(value);
 
-      const response = await axios.get(`http://localhost:5050/api/project/members/${value.id}`);
+      const response = await axios.get(`ems-api.antiers.world/api/project/members/${value.id}`);
       const employeeOptions = response.data.team.map(member => ({ label: `${member.empid.empid}`, id: member.empid._id }));
       setEmployeeId(employeeOptions);
     } catch (error) {
@@ -75,7 +75,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
     try {
       setSelectedEmployeeId(value.id);
 
-      const response = await axios.get(`http://localhost:5050/api/employeeById/${value.id}`);
+      const response = await axios.get(`ems-api.antiers.world/api/employeeById/${value.id}`);
       const { name, jobRole } = response.data;
       setSelectedEmployeeName(name);
       setSelectedEmployeeJobRole(jobRole);
@@ -114,10 +114,10 @@ export default function AddReport({ onReportAdded, currentReport }) {
    
     try {
       if (currentReport) {
-        await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
+        await axios.put(`ems-api.antiers.world/api/reports/${currentReport._id}`, reportData);
         toast.success('Report updated successfully!');
       } else {
-        await axios.post('http://localhost:5050/api/addreport', reportData);
+        await axios.post('ems-api.antiers.world/api/addreport', reportData);
         toast.success('Report added successfully!');
       }
 

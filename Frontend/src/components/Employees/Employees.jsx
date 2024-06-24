@@ -11,7 +11,7 @@ export default function Employees() {
   useEffect(() => {
     const fetchJobRoles = async () => {
       try {
-        const response = await fetch('http://localhost:5050/api/jobrole');
+        const response = await fetch('ems-api.antiers.world/api/jobrole');
         if (!response.ok) {
           throw new Error('Failed to fetch job roles');
         }
@@ -31,13 +31,13 @@ export default function Employees() {
 
   const fetchData = async () => {
     try {
-      const employeesResponse = await fetch('http://localhost:5050/api/employees');
+      const employeesResponse = await fetch('ems-api.antiers.world/api/employees');
       if (!employeesResponse.ok) {
         throw new Error('Failed to fetch employee data');
       }
       const employeesData = await employeesResponse.json();
 
-      const projectsResponse = await fetch('http://localhost:5050/api/projects');
+      const projectsResponse = await fetch('ems-api.antiers.world/api/projects');
       if (!projectsResponse.ok) {
         throw new Error('Failed to fetch project data');
       }

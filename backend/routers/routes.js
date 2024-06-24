@@ -183,10 +183,9 @@ router.post('/projects', async (req, res) => {
 });
 
 
-router.put('/projects/:id', async (req, res) => {
+router.put('/projectUpdate/:id', async (req, res) => {
   const projectId = req.params.id;
   const { name, status, hourlyRate, budget, team, createdBy } = req.body;
-
 
   try {
     // Find the project by ID
@@ -206,8 +205,10 @@ router.put('/projects/:id', async (req, res) => {
     // Save the updated project
     const updatedProject = await project.save();
 
+    // Update the user who created the project
     await User.findByIdAndUpdate(createdBy, { $addToSet: { projects: updatedProject._id } }, { new: true });
 
+    // Update each team member with the project ID
     for (const member of team) {
       await User.findByIdAndUpdate(member.empid, { $addToSet: { projects: updatedProject._id } }, { new: true });
     }

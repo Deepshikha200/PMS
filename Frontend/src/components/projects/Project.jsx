@@ -38,7 +38,7 @@ export default function Project() {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5050/api/user/${userId}`);
+      const response = await axios.get(`ems-api.antiers.world/api/user/${userId}`);
       setProjects(response.data);
 
       const formattedProjects = response.data.map((project, index) => ({
@@ -69,7 +69,8 @@ export default function Project() {
 
   const handleUpdateProject = async (project) => {
     try {
-      const response = await axios.get(`http://localhost:5050/api/projects/${project.id}`);
+      const response = await axios.get(`ems-api.antiers.world/api/projects/${project.id}`);
+      console.log(response.data, "RESRESR")
       setSelectedProject(response.data);
       setShowCreateProject(true);
     } catch (error) {
@@ -92,7 +93,7 @@ export default function Project() {
     if (!projectToDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5050/api/projects/${projectToDelete}`);
+      await axios.delete(`ems-api.antiers.world/api/projects/${projectToDelete}`);
       setRows(rows.filter(row => row.id !== projectToDelete));
       setProjects(projects.filter(project => project._id !== projectToDelete));
       toast.success("Project deleted successfully");
@@ -182,6 +183,7 @@ export default function Project() {
             onProjectCreated={handleProjectCreation}
             isEditing={selectedProject ? true : false}
             projectData={selectedProject}
+            updatedData={selectedProject}
           />
         </Modal.Body>
       </Modal>

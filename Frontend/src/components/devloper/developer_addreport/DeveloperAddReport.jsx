@@ -30,7 +30,7 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
         }
 
         // Fetch projects
-        const projectsResponse = await axios.get(`http://localhost:5050/api/developer/${developerId}`);
+        const projectsResponse = await axios.get(`ems-api.antiers.world/api/developer/${developerId}`);
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
 
         // Set initial values if editing existing report
@@ -74,11 +74,11 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
     try {
       if (currentReport) {
         // Update existing report
-        await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
+        await axios.put(`ems-api.antiers.world/api/reports/${currentReport._id}`, reportData);
         toast.success('Report updated successfully');
       } else {
         // Add new report
-        await axios.post('http://localhost:5050/api/addreport', reportData);
+        await axios.post('ems-api.antiers.world/api/addreport', reportData);
         toast.success('Report added successfully');
       }
       if (onReportAdded) onReportAdded();
@@ -138,14 +138,14 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
       </LocalizationProvider>
 
       <FormControl sx={{ m: 1, ml: 2, minWidth: 435 }}>
-      <Textarea
-        className="remarks"
-        placeholder="Remarks"
-        minRows={3}
-        maxRows={6}
-        value={remarks}
-        onChange={(e) => setRemarks(e.target.value)}
-      />
+        <Textarea
+          className="remarks"
+          placeholder="Remarks"
+          minRows={3}
+          maxRows={6}
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+        />
       </FormControl>
 
       <Button
