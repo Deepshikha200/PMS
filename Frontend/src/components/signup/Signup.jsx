@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
@@ -82,7 +82,7 @@ export default function Signup() {
     // Validate email domain
     if (name === 'empname') {
       if (!validateName(value)) {
-        setNameError('Please use Alphabets');
+        setNameError('Please use Alphabets only');
       } else {
         setNameError('');
       }
@@ -95,7 +95,7 @@ export default function Signup() {
         setEmailError('');
       }
     }
-// Validate password strength
+    // Validate password strength
     if (name === 'password') {
       if (!validatePassword(value)) {
         setPasswordError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
@@ -103,7 +103,7 @@ export default function Signup() {
         setPasswordError('');
       }
     }
-// Validate password confirmation
+    // Validate password confirmation
     if (name === 'confirmPassword') {
       if (value !== formData.password) {
         setConfirmPasswordError('Passwords do not match.');
@@ -125,7 +125,7 @@ export default function Signup() {
   const validateEmailDomain = (email) => {
     return /@antiersolutions\.com$/.test(email);
   };
-  
+
 
   const validatePassword = (password) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -133,36 +133,36 @@ export default function Signup() {
   };
 
   const validateName = (firstName) => {
-    const nameRegex = /^[a-zA-Z]+$/;
+    const nameRegex = /^[a-zA-Z\s]+$/;
     return nameRegex.test(firstName);
 
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (emailError || passwordError || confirmPasswordError) {
       toast.error('Please fix the errors before submitting.');
       return;
     }
-    
+
     if (!validatePassword(formData.password)) {
       toast.error('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
       return;
     }
-  
+
     try {
       // Fetch the ObjectId of the selected job role based on its name
       const selectedJobRole = jobRoles.find(role => role.name === formData.jobRole);
       if (!selectedJobRole) {
         throw new Error('Selected job role not found');
       }
-// Prepare form data with the correct jobRole ObjectId
+      // Prepare form data with the correct jobRole ObjectId
       const preparedFormData = {
         ...formData,
         jobRole: selectedJobRole._id
       };
-  
+
       // Send form data to backend for signup
       const response = await axios.post('https://ems-api.antiers.work/api/v1/signup', preparedFormData);
       toast.success(response.data.message);
@@ -178,7 +178,7 @@ export default function Signup() {
       }
     }
   };
-  
+
 
   return (
     <div className='signup d-flex justify-content-center align-items-center'>
@@ -206,11 +206,11 @@ variant='filled'
             variant='filled'
             value={formData.lastName}
             onChange={handleChange}
-            color='warning' 
+            color='warning'
             required
           />
-           {/* {nameError && <div className="nameError">{nameError}</div>} */}
-{/* <TextField
+          {/* {nameError && <div className="nameError">{nameError}</div>} */}
+          {/* <TextField
             className='signup-textfield m-3 '
             id='lastName'
             name='lastName'
@@ -229,10 +229,10 @@ variant='filled'
             variant='filled'
             value={formData.lastName}
             onChange={handleChange}
-            color='warning' 
+            color='warning'
             required
           />
-           {nameError && <div className="nameError">{nameError}</div>}
+          {nameError && <div className="nameError">{nameError}</div>}
 
           <TextField
             className='signup-textfield-email m-3'
@@ -243,9 +243,9 @@ variant='filled'
             value={formData.email}
             onChange={handleChange}
             required
-            
+
           />
-           {emailError && <div className="emailerror">{emailError}</div>}
+          {emailError && <div className="emailerror">{emailError}</div>}
           <TextField
             className='signup-textfield m-3 mt-2 ms-2'
             id='phoneNo'
@@ -254,9 +254,9 @@ variant='filled'
             variant='filled'
             value={formData.phoneNo}
             onChange={handleChange}
-            required 
+            required
           />
-          
+
           <FormControl variant='filled' sx={{ m: 1, minWidth: 200 }}>
             <InputLabel id='jobRoleLabel'>Job Role</InputLabel>
             <Select
@@ -274,7 +274,7 @@ variant='filled'
             </Select>
           </FormControl>
           {phoneNumberError && <div className="phoneError">{phoneNumberError}</div>}
-<TextField
+          <TextField
             className='signup-textfield m-3 '
             id='password'
             name='password'
@@ -284,14 +284,14 @@ variant='filled'
             value={formData.password}
             onChange={handleChange}
             required
-        
+
           />
-            {showPassword ? (
-                <div className='eyeicon' onClick={handleEyetwo}><AiFillEyeInvisible /></div>
-              ) : (
-                <div className='eyeicon' onClick={handleEye}><FaEye /></div>
-              )}
-           
+          {showPassword ? (
+            <div className='eyeicon' onClick={handleEyetwo}><AiFillEyeInvisible /></div>
+          ) : (
+            <div className='eyeicon' onClick={handleEye}><FaEye /></div>
+          )}
+
           <TextField
             className='signup-textfield m-3'
             id='confirmPassword'
@@ -302,17 +302,17 @@ variant='filled'
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-   
-          />
-           {showConfirmPassword ? (
-                <div className='Cpeyeicon' onClick={handleEyetwoCp}><AiFillEyeInvisible /></div>
-              ) : (
-                <div className='Cpeyeicon' onClick={handleEyeCp}><FaEye /></div>
-              )}
 
-           {passwordError && <div className="passerror">{passwordError}</div>}
-            {confirmPasswordError && <div className="cpasserror">{confirmPasswordError}</div>}
-          
+          />
+          {showConfirmPassword ? (
+            <div className='Cpeyeicon' onClick={handleEyetwoCp}><AiFillEyeInvisible /></div>
+          ) : (
+            <div className='Cpeyeicon' onClick={handleEyeCp}><FaEye /></div>
+          )}
+
+          {passwordError && <div className="passerror">{passwordError}</div>}
+          {confirmPasswordError && <div className="cpasserror">{confirmPasswordError}</div>}
+
           <Button className='signup-btn m-4' variant='contained' type='submit'>
             Sign up
           </Button>

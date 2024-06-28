@@ -3,7 +3,7 @@ import './Report.css';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
-import AddReport from '../add_report/AddReport.jsx'; 
+import AddReport from '../add_report/AddReport.jsx';
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios';
 import IconButton from '@mui/material/IconButton';
@@ -37,6 +37,12 @@ export default function Report() {
   const fetchData = async () => {
     try {
       const response = await axios.get('https://ems-api.antiers.work/api/reports');
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        console.error('User ID not found. Please login.');
+        return;
+      }
+
       const data = response.data.map((report, index) => ({
         ...report,
         projectName: report.projectName?.name || 'N/A',
@@ -179,15 +185,15 @@ export default function Report() {
       <ToastContainer />
       <div className='report'>
         <h2 className=' mb-3 text-center fs-1 fw-bold'>Daily Report</h2>
-        <Button className="float-end" sx={{ mr: 5, height: 50, mt: -6 }} variant="contained" onClick={handleShowReport}>Add Report</Button>
-        
+        <Button className="float-end" sx={{ mr: 5, height: 50, mt: -6 }} variant="contained" onClick={handleShowReport}>Log Hours</Button>
+
         <Button className="float-end" sx={{ mr: 2, height: 50, mt: -6 }} onClick={handleClick}
           aria-controls={open ? 'account-menu' : undefined}
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
           variant="contained">Filter <FilterListIcon id="filterIcon" /></Button>
 
-          <Box sx={{ mt:1, p: 5}}>
+        <Box sx={{ mt: 1, p: 5 }}>
           <Button variant="contained" className=" totalloghours float-end" color="primary" onClick={handleShowContributionModal}>Total Log Hours</Button>
         </Box>
 
@@ -204,7 +210,7 @@ export default function Report() {
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel>Project Name</InputLabel>
               <Select
-              label="Project Name"
+                label="Project Name"
                 value={selectedProject}
                 onChange={handleProjectChange}
               >
@@ -221,7 +227,7 @@ export default function Report() {
             <FormControl sx={{ m: 1, width: 300 }}>
               <InputLabel>Employee Id</InputLabel>
               <Select
-              label="Employee Id"
+                label="Employee Id"
                 value={selectedEmployee}
                 onChange={handleEmployeeChange}
               >
@@ -258,7 +264,7 @@ export default function Report() {
           />
         </Box>
 
-      
+
       </div>
       <Modal show={showReport} onHide={handleCloseReport} className="report-modal">
         <Modal.Header closeButton>
@@ -268,8 +274,8 @@ export default function Report() {
           <AddReport currentReport={currentReport} onReportAdded={handleCloseReport} />
         </Modal.Body>
       </Modal>
-      
-  {/* total log hours modal */}
+
+      {/* total log hours modal */}
 
       <Modal show={showContributionModal} onHide={handleCloseContributionModal} className="loghours-modal">
         <Modal.Header closeButton>
@@ -278,7 +284,7 @@ export default function Report() {
         <Modal.Body>
           <p className='fw-bold'>Individual Contribution: <span className='hours '> {individualLogHours} hrs</span> </p>
           <p className='fw-bold'>All Employees Contribution: <span className='hours'>
-          {allEmployeesLogHours} hrs
+            {allEmployeesLogHours} hrs
           </span> </p>
         </Modal.Body>
         <Modal.Footer>

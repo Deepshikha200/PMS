@@ -13,21 +13,19 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
-
 export default function CreateProject({
   onProjectCreated,
   isEditing,
   projectData,
   updatedData,
 }) {
-
   const [projectName, setProjectName] = useState("");
   const [status, setStatus] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
   const [budget, setBudget] = useState("");
-  const [rows, setRows] = useState([{ id: 1, jobRole: "", empname: "", empid: "" }]);
+  const [rows, setRows] = useState([
+    { id: 1, jobRole: "", empname: "", empid: "" }
+  ]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [jobRoles, setJobRoles] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
@@ -43,7 +41,7 @@ export default function CreateProject({
         );
 
         setAvailableMembers(membersResponse.data);
-        console.log("hello", membersResponse, jobRolesResponse)
+        console.log("hellooooo", availableMembers)
         setJobRoles(jobRolesResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -64,18 +62,13 @@ export default function CreateProject({
           ? projectData.team.map((member, index) => ({
             id: index + 1,
             jobRole: member.jobRole || "",
-            empname: member.empname._id || "",
-            empid: member.empid._id || "",
+            empname: member.empname.empname || "",
+            empid: member.empid.empid || "",
           }))
           : [{ id: 1, jobRole: "", empname: "", empid: "" }]
       );
-
-      const initialJobRoles = projectData.team.map(member => member.jobRole);
-      const uniqueJobRoles = [...new Set(initialJobRoles)];
-      const filtered = availableMembers.filter(member => uniqueJobRoles.includes(member.jobRole));
-      setFilteredMembers(filtered);
     }
-  }, [projectData, availableMembers]);
+  }, [projectData]);
 
   const handleAddRow = () => {
     const newRow = { id: rows.length + 1, jobRole: "", empname: "", empid: "" };
@@ -95,7 +88,7 @@ export default function CreateProject({
         if (field === "empname") return member._id === value.empname;
         if (field === "empid") return member._id === value.empid;
       });
-      console.log(selectedMember)
+
       if (selectedMember) {
         updatedRows = rows.map((row) =>
           row.id === item.id
@@ -103,6 +96,7 @@ export default function CreateProject({
               ...row,
               empname: selectedMember._id,
               empid: selectedMember._id,
+              empJobRole: selectedMember._id,
             }
             : row
         );
@@ -141,8 +135,8 @@ export default function CreateProject({
       team: rows
         .map((row) => ({
           jobRole: row.jobRole,
-          empname: row.empname, // Assuming empname contains the member's _id
-          empid: row.empid, // Assuming empid contains the member's _id
+          empname: row.empname, // Assuming empJobRole contains the member's _id
+          empid: row.empid, // Assuming empJobRole contains the member's _id
         }))
         .filter((row) => row.empid !== "" && row.empname !== ""),
       createdBy: userId,
@@ -153,6 +147,8 @@ export default function CreateProject({
         "https://ems-api.antiers.work/api/projects",
         projectData
       );
+      console.log(response.data, 'response')
+
       toast.success("Project created successfully!");
       onProjectCreated();
       console.log("Project created successfully!", response);
@@ -178,13 +174,12 @@ export default function CreateProject({
       team: rows
         .map((row) => ({
           jobRole: row.jobRole,
-          empname: row.empname,
-          empid: row.empid,
+          empname: row.empname, // Assuming empname contains the member's _id
+          empid: row.empid, // Assuming empid contains the member's _id
         }))
         .filter((row) => row.empid !== "" && row.empname !== ""),
       createdBy: userId,
     };
-    console.log(updatedProjectData, 'updatedProjectDataupdatedProjectData')
 
     // Check if there are changes compared to original projectData
     if (
@@ -218,9 +213,7 @@ export default function CreateProject({
       (member) => member.jobRole === jobRoleId
     );
     setFilteredMembers(filtered);
-    console.log(filtered, 'filtered')
   };
-  console.log(filteredMembers, 'filteredMembersfilteredMembers')
 
   return (
     <div className="createproject">
@@ -268,7 +261,7 @@ export default function CreateProject({
       {rows.map((item) => (
         <div key={item.id}>
           <FormControl sx={{ m: 1, ml: 4, mt: 2, minWidth: 186 }}>
-            <InputLabel>Job role</InputLabel>
+            <InputLabel>Job Role</InputLabel>
             <Select
               label="Job Role"
               value={item.jobRole || ""}
@@ -283,39 +276,37 @@ export default function CreateProject({
               ))}
             </Select>
           </FormControl>
+
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 216 }}>
             <Autocomplete
               options={filteredMembers.map((member) => ({
                 label: member.empname,
                 id: member._id,
               }))}
-              value={item.empname}
+              getOptionLabel={(option) => option.label}
+              renderInput={(params) => (
+                <TextField {...params} label="Emp Name" variant="outlined" />
+              )}
+              value={availableMembers.find(member => member._id === item.empname) || null}
               onChange={(event, newValue) =>
                 handleChange(item, "empname", { empname: newValue.id })
               }
-              renderInput={(params) => (
-                <TextField {...params} label="Employee Name" />
-              )}
             />
-          </FormControl>
 
+
+          </FormControl>
           <FormControl sx={{ m: 1, ml: 2, mt: 2, minWidth: 156 }}>
             <Autocomplete
-
-              options={filteredMembers.map((member) => ({
-                label: member.empid,
-                id: member._id,
-              }))}
-              value={item.empid}
-              onChange={(event, newValue) =>
-                handleChange(item, "empid", { empid: newValue.id })
-              }
+              options={filteredMembers.map((member) => member.empid)}
               renderInput={(params) => (
-                <TextField {...params} label="Employee ID" />
+                <TextField {...params} label="Emp ID" variant="outlined" />
               )}
+              value={item.empid || ""}
+              onChange={(e, newValue) =>
+                handleChange(item, "empid", newValue)
+              }
             />
           </FormControl>
-
 
           {item.id !== 1 && (
             <DeleteIcon
@@ -331,7 +322,7 @@ export default function CreateProject({
       >
         + Add new Employee
       </Link>
-
+      <hr />
       <Button
         className="createproject-btn float-end"
         variant="contained"
@@ -339,7 +330,7 @@ export default function CreateProject({
       >
         {isEditing ? "Update" : "Create"}
       </Button>
-
     </div>
   );
 }
+

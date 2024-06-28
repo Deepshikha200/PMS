@@ -40,7 +40,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
         console.error('Error fetching data:', error);
       }
     };
-    
+
 
     fetchData();
 
@@ -50,7 +50,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
       setSelectedEmployeeId({ label: currentReport.employeeId, id: currentReport.employeeId });
       setSelectedEmployeeName(currentReport.employeeName);
       setSelectedEmployeeJobRole(currentReport.jobRole);
-      setLogHours(currentReport.logHours || ''); 
+      setLogHours(currentReport.logHours || '');
       setRemarks(currentReport.remarks || '');
     }
   }, [currentReport]);
@@ -101,7 +101,12 @@ export default function AddReport({ onReportAdded, currentReport }) {
       toast.error('Please fill in all required fields with valid data.');
       return;
     }
+    const userId = localStorage.getItem("userId");
 
+    if (!userId) {
+      toast.error("Please signup first to create the project");
+      return;
+    }
     const reportData = {
       projectName: selectedProject.id,
       employeeId: selectedEmployeeId,
@@ -111,7 +116,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
       logHours,
       remarks,
     };
-   
+
     try {
       if (currentReport) {
         await axios.put(`https://ems-api.antiers.work/api/reports/${currentReport._id}`, reportData);
@@ -151,7 +156,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
           disablePortal
           id="combo-box-demo"
           options={employeeId}
-          
+
           getOptionLabel={(option) => option.label}
           onChange={handleEmployeeIdChange}
           value={employeeId.find(emp => emp.id === selectedEmployeeId) || null}
@@ -203,14 +208,14 @@ export default function AddReport({ onReportAdded, currentReport }) {
         />
       </FormControl>
       <FormControl sx={{ m: 1, ml: 2, minWidth: 435 }}>
-      <Textarea
-        className="remarks"
-        placeholder="Remarks"
-        minRows={3}
-        maxRows={6}
-        value={remarks}
-        onChange={(e) => setRemarks(e.target.value)}
-      />
+        <Textarea
+          className="remarks"
+          placeholder="Remarks"
+          minRows={3}
+          maxRows={6}
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+        />
       </FormControl>
 
       <Button

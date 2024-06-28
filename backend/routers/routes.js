@@ -8,7 +8,7 @@ const Project = require('../models/Project');
 const JobRole = require('../models/jobRoles');
 const Report = require('../models/Report');
 
-const JWT_SECRET = 'your_jwt_secret_key';
+const JWT_SECRET = 'my_jwt_secret_key';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -94,8 +94,63 @@ router.get('/empname', async (req, res) => {
   }
 });
 
+router.put('/projectUpdate/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, status, hourlyRate, budget, team } = req.body;
 
+  try {
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
 
+    project.name = name || project.name;
+    project.status = status || project.status;
+    project.hourlyRate = hourlyRate || project.hourlyRate;
+    project.budget = budget || project.budget;
+
+    const existingTeam = project.team.map(member => ({
+      jobRole: member.jobRole,
+      empname: member.empname.empname,
+      empid: member.empid.empid
+    }));
+
+    // Merge updated team members with existing team
+    const updatedTeam = existingTeam.map(existingMember => {
+      const updatedMember = team.find(newMember => newMember.empid === existingMember.empid);
+      return updatedMember || existingMember;
+    });
+
+    // Add new members to the team if they are not already present
+    team.forEach(newMember => {
+      if (!updatedTeam.find(member => member.empid === newMember.empid)) {
+        updatedTeam.push(newMember);
+      }
+    });
+
+    project.team = updatedTeam.map(member => ({
+      jobRole: member.jobRole,
+      empname: { empname: member.empname }, // Adjust based on your schema
+      empid: { empid: member.empid } // Adjust based on your schema
+    }));
+
+    const updatedProject = await project.save();
+
+    // Update the users' project lists
+    for (const member of team) {
+      await User.findByIdAndUpdate(
+        member.empid,
+        { $addToSet: { projects: project._id } },
+        { new: true }
+      );
+    }
+
+    res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ error: error });
+  }
+});
 
 router.get('/members/:jobRole', async (req, res) => {
   try {
@@ -183,42 +238,9 @@ router.post('/projects', async (req, res) => {
 });
 
 
-router.put('/projectUpdate/:id', async (req, res) => {
-  const projectId = req.params.id;
-  const { name, status, hourlyRate, budget, team, createdBy } = req.body;
 
-  try {
-    // Find the project by ID
-    const project = await Project.findById(projectId);
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
-    }
 
-    // Update the project's details
-    project.name = name;
-    project.status = status;
-    project.hourlyRate = hourlyRate;
-    project.budget = budget;
-    project.team = team;
-    project.createdBy = createdBy;
 
-    // Save the updated project
-    const updatedProject = await project.save();
-
-    // Update the user who created the project
-    await User.findByIdAndUpdate(createdBy, { $addToSet: { projects: updatedProject._id } }, { new: true });
-
-    // Update each team member with the project ID
-    for (const member of team) {
-      await User.findByIdAndUpdate(member.empid, { $addToSet: { projects: updatedProject._id } }, { new: true });
-    }
-
-    res.status(200).json(updatedProject);
-  } catch (error) {
-    console.error('Error updating project:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -292,12 +314,7 @@ router.get('/projects', async (req, res) => {
 router.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const project = await Project.findById(id)
-      .populate({
-        path: 'team.empname team.empid', // Populate both empname and empid
-        select: 'empname empid', // Select only empname and empid fields
-      });
-
+    const project = await Project.findById(id);
     res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -305,33 +322,6 @@ router.get('/projects/:id', async (req, res) => {
 });
 
 
-router.put('/projects/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, status, hourlyRate, budget, team } = req.body;
-
-  try {
-    // Find the project by ID
-    const project = await Project.findById(id);
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
-    }
-
-    // Update the project's details
-    project.name = name;
-    project.status = status;
-    project.hourlyRate = hourlyRate;
-    project.budget = budget;
-    project.team = team;
-
-    // Save the updated project
-    const updatedProject = await project.save();
-    console.log(updatedProject, 'updatedProjectupdatedProject')
-    res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
-  } catch (error) {
-    console.error('Error updating project:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 
 

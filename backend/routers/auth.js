@@ -49,10 +49,12 @@ router.post('/signup', async (req, res) => {
   }
 
   // Validation for empname: only letters allowed
-  const empnameRegex = /^[a-zA-Z]+$/;
+
+  const empnameRegex = /^[a-zA-Z\s]+$/;
   if (!empname.match(empnameRegex)) {
-    return res.status(400).json({ error: 'Name must contain only letters' });
+    return res.status(400).json({ error: 'Name must contain only letters and spaces' });
   }
+
 
   // Validation for email domain
   if (!validateEmailDomain(email)) {

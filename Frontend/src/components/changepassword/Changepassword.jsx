@@ -1,19 +1,3 @@
-// import React from 'react'
-// import TextField from '@mui/material/TextField';
-// import Button from '@mui/material/Button';
-// import './Changepassword.css'
-// export default function Changepassword() {
-//   return (
-//     <div>
-//         <TextField className="changepass m-3"id="filled-basic" label="Old Password" variant="filled" />
-//         <TextField className="changepass m-3"id="filled-basic" label="New Password" variant="filled" />
-//         <TextField className="changepass m-3"id="filled-basic" label="Confirm Password" variant="filled" />
-//      <Button className="changepass m-3" variant="contained">Submit</Button>
-//     </div>
-//   )
-// }
-
-
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -54,7 +38,7 @@ export default function Changepassword() {
 
     try {
       const userId = localStorage.getItem('userId'); 
-      const response = await axios.post('https://ems-api.antiers.work/api/change-password', {
+      const response = await axios.post('https://ems-api.antiers.work/api/v1/change-password', {
         userId,
         currentPassword: oldPassword,
         newPassword,
