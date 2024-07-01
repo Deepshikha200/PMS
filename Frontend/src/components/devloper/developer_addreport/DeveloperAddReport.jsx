@@ -30,7 +30,7 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
         }
 
         // Fetch projects
-        const projectsResponse = await axios.get(`https://ems-api.antiers.work/api/developer/${developerId}`);
+        const projectsResponse = await axios.get(`http://localhost:5050/api/developer/${developerId}`);
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
 
         // Set initial values if editing existing report
@@ -69,16 +69,17 @@ export default function DevAddReport({ onReportAdded, currentReport }) {
       date: selectedDate.format('YYYY-MM-DD'),
       logHours,
       remarks,
+      createdBy:developerId
     };
 
     try {
       if (currentReport) {
         // Update existing report
-        await axios.put(`https://ems-api.antiers.work/api/reports/${currentReport._id}`, reportData);
+        await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
         toast.success('Report updated successfully');
       } else {
         // Add new report
-        await axios.post('https://ems-api.antiers.work/api/addreport', reportData);
+        await axios.post('http://localhost:5050/api/addreport', reportData);
         toast.success('Report added successfully');
       }
       if (onReportAdded) onReportAdded();

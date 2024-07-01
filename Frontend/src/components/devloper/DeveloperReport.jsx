@@ -15,7 +15,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-  export default function DeveloperReport() {
+export default function DeveloperReport() {
   const [showReport, setShowReport] = useState(false);
   const [showLogHoursModal, setShowLogHoursModal] = useState(false); // State to control log hours modal visibility
   const [rows, setRows] = useState([]);
@@ -36,7 +36,7 @@ import 'react-toastify/dist/ReactToastify.css';
         console.error('User ID not found in localStorage.');
         return;
       }
-      const response = await axios.get(`https://ems-api.antiers.work/api/reports/${userId}`);
+      const response = await axios.get(`http://localhost:5050/api/reports/developer/${userId}`);
       const formattedData = formatData(response.data);
       setRows(formattedData);
 
@@ -135,7 +135,7 @@ import 'react-toastify/dist/ReactToastify.css';
       <ToastContainer />
       <div className='report'>
         <h2 className='mt-5 mb-3 text-center fs-1 fw-bold'>Daily Report</h2>
-        <Button className="float-end" sx={{ mr: 5, height: 50, mt: -6 }} variant="contained" onClick={handleShowReport}>Add Report</Button>
+        <Button className="float-end" sx={{ mr: 5, height: 50, mt: -6 }} variant="contained" onClick={handleShowReport}>Log Hours</Button>
         <Button
           className="float-end"
           sx={{ mr: 2, height: 50, mt: -6 }}
@@ -216,7 +216,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
       <Modal show={showReport} onHide={handleCloseReport} className="report-modal">
         <Modal.Header closeButton>
-          <Modal.Title>{currentReport ? 'Edit Report' : 'Add Report'}</Modal.Title>
+          <Modal.Title>{currentReport ? 'Edit Log Hours' : 'Log Hours'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <DeveloperAddReport

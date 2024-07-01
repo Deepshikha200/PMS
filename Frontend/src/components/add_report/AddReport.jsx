@@ -13,6 +13,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function AddReport({ onReportAdded, currentReport }) {
+
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [projectNames, setProjectNames] = useState([]);
   const [employeeId, setEmployeeId] = useState([]);
@@ -33,14 +34,13 @@ export default function AddReport({ onReportAdded, currentReport }) {
       }
 
       try {
-        const projectsResponse = await axios.get(`https://ems-api.antiers.work/api/user/${userId}`);
+        const projectsResponse = await axios.get(`http://localhost:5050/api/user/${userId}`);
 
         setProjectNames(projectsResponse.data.map(project => ({ label: project.name, id: project._id })));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
 
     fetchData();
 
@@ -61,7 +61,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
     try {
       setSelectedProject(value);
 
-      const response = await axios.get(`https://ems-api.antiers.work/api/project/members/${value.id}`);
+      const response = await axios.get(`http://localhost:5050/api/project/members/${value.id}`);
       const employeeOptions = response.data.team.map(member => ({ label: `${member.empid.empid}`, id: member.empid._id }));
       setEmployeeId(employeeOptions);
     } catch (error) {
@@ -73,9 +73,8 @@ export default function AddReport({ onReportAdded, currentReport }) {
     if (!value) return;
 
     try {
-      setSelectedEmployeeId(value.id);
-
-      const response = await axios.get(`https://ems-api.antiers.work/api/employeeById/${value.id}`);
+      setSelectedEmployeeId(value);
+      const response = await axios.get(`http://localhost:5050/api/employeeById/${value.id}`);
       const { name, jobRole } = response.data;
       setSelectedEmployeeName(name);
       setSelectedEmployeeJobRole(jobRole);
@@ -88,7 +87,7 @@ export default function AddReport({ onReportAdded, currentReport }) {
     const inputValue = event.target.value;
     setLogHours(inputValue);
 
-    const regex = /^([01]?[0-9]|2[0-3])\.[0-5][0-9]$/; // Regex for hh.mm format
+    const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (regex.test(inputValue)) {
       setError(false);
     } else {
@@ -109,20 +108,21 @@ export default function AddReport({ onReportAdded, currentReport }) {
     }
     const reportData = {
       projectName: selectedProject.id,
-      employeeId: selectedEmployeeId,
+      employeeId: selectedEmployeeId.id, // Update to selectedEmployeeId.id
       employeeName: selectedEmployeeName,
       jobRole: selectedEmployeeJobRole,
       date: selectedDate.format('YYYY-MM-DD'),
       logHours,
       remarks,
+      createdBy: userId,
     };
 
     try {
       if (currentReport) {
-        await axios.put(`https://ems-api.antiers.work/api/reports/${currentReport._id}`, reportData);
+        await axios.put(`http://localhost:5050/api/reports/${currentReport._id}`, reportData);
         toast.success('Report updated successfully!');
       } else {
-        await axios.post('https://ems-api.antiers.work/api/addreport', reportData);
+        await axios.post('http://localhost:5050/api/addreport', reportData);
         toast.success('Report added successfully!');
       }
 
@@ -156,10 +156,9 @@ export default function AddReport({ onReportAdded, currentReport }) {
           disablePortal
           id="combo-box-demo"
           options={employeeId}
-
           getOptionLabel={(option) => option.label}
           onChange={handleEmployeeIdChange}
-          value={employeeId.find(emp => emp.id === selectedEmployeeId) || null}
+          value={selectedEmployeeId} // Updated to selectedEmployeeId
           disabled={!!currentReport}
           renderInput={(params) => <TextField {...params} label="Emp ID" />}
         />
@@ -199,11 +198,11 @@ export default function AddReport({ onReportAdded, currentReport }) {
         <TextField
           label="Log Hours"
           variant="outlined"
-          placeholder="hh.mm"
+          placeholder="hh:mm"
           value={logHours}
           onChange={handleChange}
           error={error}
-          helperText={error ? 'Invalid time format. Use hh.mm' : ''}
+          helperText={error ? 'Invalid time format. Use hh:mm' : ''}
           fullWidth
         />
       </FormControl>

@@ -4,9 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
-const Project = require('../models/Project');
-const JobRole = require('../models/jobRoles');
-const Report = require('../models/Report');
+const CryptoJS = require('crypto-js');
+
 
 const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
 
@@ -124,18 +123,24 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+
+// Forgot password route
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email }).populate('jobRole', 'name');
     if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'User not found' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Decrypt the password
+    const decryptedPassword = CryptoJS.AES.decrypt(password, 'your_secret_key').toString(CryptoJS.enc.Utf8);
+    console.log(decryptedPassword, 'decryptedPassword')
+    const isPasswordValid = await bcrypt.compare(decryptedPassword, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid password' });
     }
 
     const token = jwt.sign(
@@ -149,7 +154,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
-// Forgot password route
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
 
@@ -198,6 +202,49 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+// router.post('/change-password', async (req, res) => {
+//   const { userId, currentPassword, newPassword } = req.body;
+
+//   if (!userId || !currentPassword || !newPassword) {
+//     return res.status(400).json({ error: 'Missing required fields' });
+//   }
+
+//   try {
+//     // Decrypt the passwords
+//     const decryptedCurrentPassword = CryptoJS.AES.decrypt(currentPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
+//     const decryptedNewPassword = CryptoJS.AES.decrypt(newPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
+
+//     // Find the user by ID
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     // Validate the current password
+//     const isPasswordValid = await bcrypt.compare(decryptedCurrentPassword, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Current password is incorrect' });
+//     }
+
+//     // Validate the new password
+//     if (!validatePassword(decryptedNewPassword)) {
+//       return res.status(400).json({ error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
+//     }
+
+//     // Hash the new password
+//     const hashedNewPassword = await bcrypt.hash(decryptedNewPassword, 10);
+
+//     // Update the user's password
+//     user.password = hashedNewPassword;
+//     await user.save();
+
+//     res.status(200).json({ message: 'Password changed successfully' });
+//   } catch (error) {
+//     console.error('Error changing password:', error);
+//     res.status(500).json({ error: 'An unexpected error occurred' });
+//   }
+// });
+
 router.post('/change-password', async (req, res) => {
   const { userId, currentPassword, newPassword } = req.body;
 
@@ -206,25 +253,34 @@ router.post('/change-password', async (req, res) => {
   }
 
   try {
+    // Decrypt the passwords
+    const decryptedCurrentPassword = CryptoJS.AES.decrypt(currentPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
+    const decryptedNewPassword = CryptoJS.AES.decrypt(newPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
+
     // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Check if the new password is the same as the current password
+    if (await bcrypt.compare(decryptedNewPassword, user.password)) {
+      return res.status(400).json({ error: 'You cannot set your current password as new password' });
+    }
+
     // Validate the current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(decryptedCurrentPassword, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
 
     // Validate the new password
-    if (!validatePassword(newPassword)) {
+    if (!validatePassword(decryptedNewPassword)) {
       return res.status(400).json({ error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
     }
 
     // Hash the new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(decryptedNewPassword, 10);
 
     // Update the user's password
     user.password = hashedNewPassword;
@@ -236,8 +292,6 @@ router.post('/change-password', async (req, res) => {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
-
-
 router.get('/name/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -257,5 +311,3 @@ router.get('/name/:id', async (req, res) => {
 });
 
 module.exports = router;
-
-

@@ -18,6 +18,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 export default function Report() {
   const [showReport, setShowReport] = useState(false);
   const [rows, setRows] = useState([]);
@@ -36,19 +37,19 @@ export default function Report() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('https://ems-api.antiers.work/api/reports');
       const userId = localStorage.getItem('userId');
       if (!userId) {
         console.error('User ID not found. Please login.');
         return;
       }
+      const response = await axios.get(`http://localhost:5050/api/reports`);
 
       const data = response.data.map((report, index) => ({
         ...report,
         projectName: report.projectName?.name || 'N/A',
         employeeId: report.employeeId?.empid || 'N/A',
         employeeName: report.employeeId?.empname || 'N/A',
-        logHours: parseFloat(report.logHours), // Parse log hours as float
+        logHours: (report.logHours), // Parse log hours as float
         date: new Date(report.date).toLocaleDateString(),
         srNo: index + 1, // Serial number
       }));
@@ -80,8 +81,8 @@ export default function Report() {
 
   const handleCloseReport = () => {
     setShowReport(false);
-    setCurrentReport(null); // Reset currentReport state to null
-    fetchData(); // Refresh the data after closing the modal
+    setCurrentReport(null);
+    fetchData();
   };
 
   const open = Boolean(anchorEl);
@@ -116,7 +117,7 @@ export default function Report() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://ems-api.antiers.work/api/report/${id}`);
+      await axios.delete(`http://localhost:5050/api/report/${id}`);
       // Update state by filtering out the deleted report
       setRows((prevRows) => prevRows.filter(row => row._id !== id));
       toast.success('Report deleted successfully');
@@ -157,10 +158,36 @@ export default function Report() {
     }
   ];
 
-  // Calculate total log hours for individual and all employees' contributions
+
   const calculateTotalLogHours = () => {
-    const individualTotal = filteredRows.reduce((total, row) => total + parseFloat(row.logHours), 0);
-    const allEmployeesTotal = rows.filter(row => selectedProject && row.projectName === selectedProject).reduce((total, row) => total + parseFloat(row.logHours), 0);
+    let totalHours = 0;
+    let totalMinutes = 0;
+  
+    filteredRows.forEach((row) => {
+      const [hours, minutes] = row.logHours.split(':');
+      totalHours += parseInt(hours);
+      totalMinutes += parseInt(minutes);
+    });
+  
+    totalHours += Math.floor(totalMinutes / 60);
+    totalMinutes %= 60;
+  
+    const individualTotal = `${totalHours}:${totalMinutes.toString().padStart(2, '0')}`;
+  
+    let allEmployeesTotalHours = 0;
+    let allEmployeesTotalMinutes = 0;
+  
+    rows.filter((row) => selectedProject && row.projectName === selectedProject).forEach((row) => {
+      const [hours, minutes] = row.logHours.split(':');
+      allEmployeesTotalHours += parseInt(hours);
+      allEmployeesTotalMinutes += parseInt(minutes);
+    });
+  
+    allEmployeesTotalHours += Math.floor(allEmployeesTotalMinutes / 60);
+    allEmployeesTotalMinutes %= 60;
+  
+    const allEmployeesTotal = `${allEmployeesTotalHours}:${allEmployeesTotalMinutes.toString().padStart(2, '0')}`;
+  
     return { individualTotal, allEmployeesTotal };
   };
 
@@ -268,7 +295,7 @@ export default function Report() {
       </div>
       <Modal show={showReport} onHide={handleCloseReport} className="report-modal">
         <Modal.Header closeButton>
-          <Modal.Title>{currentReport ? 'Edit Report' : 'Add Report'}</Modal.Title>
+          <Modal.Title>{currentReport ? 'Edit Log Hours' : 'Log Hours'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <AddReport currentReport={currentReport} onReportAdded={handleCloseReport} />

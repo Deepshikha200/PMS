@@ -27,6 +27,8 @@ function App() {
           <Route path="forgotpass" element={<ForgotpassModal />} />
 
           <Route element={<MainLayout />}>
+            <Route path="project/:projectId" element={<Project />} />
+
             <Route
               path="employee"
               element={
@@ -35,28 +37,21 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="workschedule"
-              element={
-                <ProtectedRoute>
-                  <Workschedule />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="report"
               element={
-                
-                  <Report />
-                
+
+                <Report />
+
               }
             />
             <Route
               path="project"
               element={
-                
-                  <Project />
-                
+
+                <Project />
+
               }
             />
           </Route>

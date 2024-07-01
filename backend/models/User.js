@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: function (v) {
-       return /@antiersolutions\.com$/.test(v); // Ensure the email ends with @antiersolutions.com
+        return /@antiersolutions\.com$/.test(v); // Ensure the email ends with @antiersolutions.com
       },
       message: props => `${props.value} is not a valid email!`
     }
@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   projects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
+  reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Report' }]
+
 });
 
 module.exports = mongoose.model('User', userSchema);

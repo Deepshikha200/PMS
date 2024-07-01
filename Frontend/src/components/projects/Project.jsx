@@ -38,7 +38,7 @@ export default function Project() {
     }
 
     try {
-      const response = await axios.get(`https://ems-api.antiers.work/api/user/${userId}`);
+      const response = await axios.get(`http://localhost:5050/api/user/${userId}`);
       setProjects(response.data);
 
       const formattedProjects = response.data.map((project, index) => ({
@@ -61,6 +61,12 @@ export default function Project() {
     setShowCreateProject(true);
   };
 
+  const handleCloseProject = () => {
+    setShowCreateProject(false);
+    setSelectedProject(null);
+    fetchUserProjects();
+  };
+
   const handleProjectCreation = () => {
     setShowCreateProject(false);
     setSelectedProject(null); // Reset selectedProject state to null
@@ -69,7 +75,7 @@ export default function Project() {
 
   const handleUpdateProject = async (project) => {
     try {
-      const response = await axios.get(`https://ems-api.antiers.work/api/projects/${project.id}`);
+      const response = await axios.get(`http://localhost:5050/api/projects/${project.id}`);
       console.log(response.data, "RESRESR")
       setSelectedProject(response.data);
       setShowCreateProject(true);
@@ -93,7 +99,7 @@ export default function Project() {
     if (!projectToDelete) return;
 
     try {
-      await axios.delete(`https://ems-api.antiers.work/api/projects/${projectToDelete}`);
+      await axios.delete(`http://localhost:5050/api/projects/${projectToDelete}`);
       setRows(rows.filter(row => row.id !== projectToDelete));
       setProjects(projects.filter(project => project._id !== projectToDelete));
       toast.success("Project deleted successfully");
@@ -174,7 +180,7 @@ export default function Project() {
         </div>
       )}
 
-      <Modal show={showCreateProject} onHide={() => setShowCreateProject(false)} className='custom-modal'>
+      <Modal show={showCreateProject} onHide={handleCloseProject} className='custom-modal'>
         <Modal.Header closeButton>
           <Modal.Title>{selectedProject ? 'Update Project' : 'Create Project'}</Modal.Title>
         </Modal.Header>
@@ -207,5 +213,3 @@ export default function Project() {
     </div>
   );
 }
-
-

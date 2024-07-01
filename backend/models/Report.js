@@ -6,9 +6,11 @@ const reportSchema = new mongoose.Schema({
   employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   employeeName: { type: String, required: true },
   jobRole: { type: String, required: true },
+
   date: { type: Date, required: true },
   logHours: { type: String, required: true },
   remarks: { type: String, required: false },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
 module.exports = mongoose.model('Report', reportSchema);

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const Project = require('../models/Project');
-const JobRole = require('../models/jobRoles');
+const JobRole = require('../models/JobRoles');
 const Report = require('../models/Report');
 
 const JWT_SECRET = 'my_jwt_secret_key';
@@ -28,47 +28,18 @@ router.get('/reports', async (req, res) => {
   }
 });
 
-router.get('/reports/:userId', async (req, res) => {
-  const { userId } = req.params;
+// router.get('/reports/:userId', async (req, res) => {
+//   const { userId } = req.params;
 
-  try {
-    const reports = await Report.find({ employeeId: userId }).populate('projectName', 'name');
-    res.status(200).json(reports);
-  } catch (error) {
-    console.error('Error fetching reports:', error);
-    res.status(500).json({ error: 'Error fetching reports' });
-  }
-});
+//   try {
+//     const reports = await Report.find({ employeeId: userId }).populate('projectName', 'name');
+//     res.status(200).json(reports);
+//   } catch (error) {
+//     console.error('Error fetching reports:', error);
+//     res.status(500).json({ error: 'Error fetching reports' });
+//   }
+// });
 
-
-router.post('/addreport', async (req, res) => {
-  const { projectName, employeeId, employeeName, jobRole, date, logHours, remarks } = req.body;
-
-  // Validate input data
-  if (!projectName || !employeeId || !employeeName || !jobRole || !date) {
-    return res.status(400).json({ error: 'Please fill in all required fields' });
-  }
-
-  try {
-    // Create a new report
-    const newReport = new Report({
-      projectName,
-      employeeId,
-      employeeName,
-      jobRole,
-      date,
-      logHours,
-      remarks,
-    });
-
-    // Save the report to the database
-    await newReport.save();
-    res.status(201).json({ message: 'Report added successfully' });
-  } catch (error) {
-    console.error('Error adding report:', error);
-    res.status(500).json({ error: 'Error adding report' });
-  }
-});
 
 
 // POST create a new job role
@@ -93,6 +64,61 @@ router.get('/empname', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// router.put('/projectUpdate/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { name, status, hourlyRate, budget, team } = req.body;
+
+//   try {
+//     const project = await Project.findById(id);
+//     if (!project) {
+//       return res.status(404).json({ error: 'Project not found' });
+//     }
+
+//     project.name = name || project.name;
+//     project.status = status || project.status;
+//     project.hourlyRate = hourlyRate || project.hourlyRate;
+//     project.budget = budget || project.budget;
+
+//     const existingTeam = project.team.map(member => ({
+//       jobRole: member.jobRole,
+//       empname: member.empname.empname,
+//       empid: member.empid.empid
+//     }));
+
+//     const updatedTeam = existingTeam.map(existingMember => {
+//       const updatedMember = team.find(newMember => newMember.empid === existingMember.empid);
+//       return updatedMember || existingMember;
+//     });
+
+//     team.forEach(newMember => {
+//       if (!updatedTeam.find(member => member.empid === newMember.empid)) {
+//         updatedTeam.push(newMember);
+//       }
+//     });
+
+//     project.team = updatedTeam.map(member => ({
+//       jobRole: member.jobRole,
+//       empname: { empname: member.empname }, // Adjust based on your schema
+//       empid: { empid: member.empid } // Adjust based on your schema
+//     }));
+
+//     const updatedProject = await project.save();
+
+//     for (const member of team) {
+//       await User.findByIdAndUpdate(
+//         member.empid,
+//         { $addToSet: { projects: project._id } },
+//         { new: true }
+//       );
+//     }
+
+//     res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
+//   } catch (error) {
+//     console.error('Error updating project:', error.message);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 router.put('/projectUpdate/:id', async (req, res) => {
   const { id } = req.params;
@@ -214,6 +240,7 @@ router.post('/projects', async (req, res) => {
       hourlyRate,
       budget,
       team,
+
       createdBy
     });
 
@@ -237,8 +264,42 @@ router.post('/projects', async (req, res) => {
   }
 });
 
+router.post('/addreport', async (req, res) => {
+  const { projectName, employeeId, employeeName, jobRole, date, logHours, remarks, createdBy } = req.body;
 
+  // Validate input data
+  if (!projectName || !employeeId || !employeeName || !jobRole || !date) {
+    return res.status(400).json({ error: 'Please fill in all required fields' });
+  }
 
+  try {
+    // Create a new report
+    const newReport = new Report({
+      projectName,
+      employeeId,
+      employeeName,
+      jobRole,
+      date,
+      logHours,
+      remarks,
+      createdBy
+    });
+
+    // Save the report to the database
+    await newReport.save();
+    await User.findByIdAndUpdate(createdBy, { $push: { projects: newReport._id } }, { new: true });
+
+    // for (const member of team) {
+    //   await User.findByIdAndUpdate(member.empid, { $push: { projects: newReport._id } }, { new: true });
+    // }
+
+    res.status(201).json({ message: 'Report added successfully' });
+  } catch (error) {
+    console.error('Error adding report:', error);
+    res.status(500).json({ error: 'Error adding report' });
+  }
+});
+// get the project according to the user
 
 
 router.get('/user/:userId', async (req, res) => {
@@ -270,6 +331,22 @@ router.get('/user/:userId', async (req, res) => {
     res.json(formattedProjects);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching projects' });
+  }
+});
+
+//get the report according to the user
+router.get('/reports/createdBy/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const reports = await Report.find({ createdBy: userId })
+      .populate('projectName', 'name') // Fetch the project name
+      .populate('employeeId', 'empname empid'); // Fetch the empname and empid of the employee
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error('Error fetching reports created by user:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
   }
 });
 
@@ -314,7 +391,8 @@ router.get('/projects', async (req, res) => {
 router.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const project = await Project.findById(id);
+    const project = await Project.findById(id).populate('team.empname', 'empname').populate('team.empid', 'empid');
+
     res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -350,6 +428,24 @@ router.get('/developer/:developerId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching projects for developer:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
+router.get('/reports/developer/:developerId', async (req, res) => {
+  const { developerId } = req.params;
+
+  try {
+    const reports = await Report.find({ employeeId: developerId })
+      .populate('projectName', 'name')
+      .populate('employeeId', 'empname empid');
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error('Error fetching reports for developer:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
   }
 });
 
@@ -421,6 +517,25 @@ router.put('/reports/:id', async (req, res) => {
   }
 });
 
+router.get('/reports/pm/:pmId', async (req, res) => {
+  const { pmId } = req.params;
+
+  try {
+    const reports = await Report.find({
+      $or: [
+        { createdBy: pmId },
+        { employeeId: pmId }
+      ]
+    })
+      .populate('projectName', 'name')
+      .populate('employeeId', 'empname empid');
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error('Error fetching reports for PM:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
 
 module.exports = router;
 

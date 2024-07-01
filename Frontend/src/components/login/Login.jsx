@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import ForgotpassModal from '../forgotpass/ForgotpassModal';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CryptoJS from 'crypto-js';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -57,9 +59,18 @@ export default function Login() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    try {
-      const response = await axios.post('https://ems-api.antiers.work/api/v1/login', formData);
+    // Encrypt the password
+    const encryptedPassword = CryptoJS.AES.encrypt(formData.password, 'your_secret_key').toString();
+// Decrypt the current password
 
+    const payload = {
+      email: formData.email,
+      password: encryptedPassword,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:5050/api/v1/login', payload);
+      console.log(payload, 'payload');
       // Display success toast
       toast.success('Login successful!');
 
@@ -77,7 +88,6 @@ export default function Login() {
           navigate('/developer/developer-project');
         } else {
           navigate('/project');
-          
         }
       }, 2000); // 2000 milliseconds delay
     } catch (error) {
