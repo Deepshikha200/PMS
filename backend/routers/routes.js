@@ -240,7 +240,6 @@ router.post('/projects', async (req, res) => {
       hourlyRate,
       budget,
       team,
-
       createdBy
     });
 

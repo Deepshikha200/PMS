@@ -13,13 +13,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
-    validate: {
-      validator: function (v) {
-        return /@antiersolutions\.com$/.test(v); // Ensure the email ends with @antiersolutions.com
-      },
-      message: props => `${props.value} is not a valid email!`
-    }
+    unique: true
   },
   phoneNo: {
     type: String,

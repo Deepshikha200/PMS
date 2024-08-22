@@ -75,7 +75,7 @@ export default function Project() {
 
   const handleUpdateProject = async (project) => {
     try {
-      const response = await axios.get(`http://localhost:5050/api/projects/${project.id}`);
+      const response = await axios.get(`http://localhost:,5050/api/projects/${project.id}`);
       console.log(response.data, "RESRESR")
       setSelectedProject(response.data);
       setShowCreateProject(true);

@@ -7,7 +7,8 @@ const nodemailer = require('nodemailer');
 const CryptoJS = require('crypto-js');
 
 
-const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
+// const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
+const validateEmailDomain = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const validatePassword = (password) => {
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -57,7 +58,7 @@ router.post('/signup', async (req, res) => {
 
   // Validation for email domain
   if (!validateEmailDomain(email)) {
-    return res.status(400).json({ error: 'Invalid email domain. Please use an email address with @antiersolutions.com domain' });
+    return res.status(400).json({ error: 'Invalid email domain.' });
   }
 
   // Validation for password
@@ -303,7 +304,7 @@ router.get('/name/:id', async (req, res) => {
     }
 
     // Send the user's name in the response
-    res.json({ name: user.empname }); // Assuming the user's name is stored in the 'empname' field
+    res.json({ name: user.empname });
   } catch (error) {
     console.error('Error fetching user name:', error);
     res.status(500).json({ error: 'Internal server error' });

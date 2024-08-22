@@ -88,14 +88,7 @@ export default function Signup() {
       }
     }
 
-    if (name === 'email') {
-      if (!validateEmailDomain(value)) {
-        setEmailError('Only @antiersolutions.com emails are allowed.');
-      } else {
-        setEmailError('');
-      }
-    }
-    // Validate password strength
+
     if (name === 'password') {
       if (!validatePassword(value)) {
         setPasswordError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
