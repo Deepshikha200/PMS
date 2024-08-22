@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 const CryptoJS = require('crypto-js');
 
 
-// const validateEmailDomain = (email) => /@antiersolutions\.com$/.test(email);
+
 const validateEmailDomain = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const validatePassword = (password) => {
@@ -86,10 +86,10 @@ router.post('/signup', async (req, res) => {
     const mailOptions = {
       from: 'deepshikhap9877@gmail.com',
       to: newUser.email,
-      subject: 'Welcome to Antier Solutions!',
+      subject: 'Welcome to PMS',
       html: `<div>
-        <h1 style="text-align:center">Antier Solutions</h1>
-        <img src="email.svg" alt="Welcome Image" style="max-width:500px;">
+        <h1 style="text-align:center">Project Management System</h1>
+        
         <h3>Welcome! Your registration has been successfully completed.</h3>
         Hi ${newUser.empname},
         <br/>
@@ -108,7 +108,7 @@ router.post('/signup', async (req, res) => {
         We look forward to your contributions and wish you great success in your new role.
         <br/><br/>
         Best regards,<br/>
-        Antier Solutions Team
+        Project Management System Team
       </div>`
     };
 
@@ -176,15 +176,15 @@ router.post('/forgot-password', async (req, res) => {
     const mailOptions = {
       from: 'deepshikhap9877@gmail.com',
       to: user.email,
-      subject: 'Your New Password for Antier Solutions',
+      subject: 'Your New Password',
       html: `<div>
-        <h1 style="text-align:center">Antier Solutions</h1>
+        <h1 style="text-align:center">Project Management System</h1>
         <h3>Your password has been reset successfully.</h3>
         <p>Hi ${user.firstName},</p>
         <p>Your new password is: <strong>${randomPassword}</strong></p>
         <p>Please log in using this new password. Once logged in, you can change it from your profile page.</p>
         <br/>
-        <p>Best regards,<br/>Antier Solutions Team</p>
+        <p>Best regards,<br/>Project Management System Team</p>
       </div>`
     };
 
@@ -203,48 +203,6 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// router.post('/change-password', async (req, res) => {
-//   const { userId, currentPassword, newPassword } = req.body;
-
-//   if (!userId || !currentPassword || !newPassword) {
-//     return res.status(400).json({ error: 'Missing required fields' });
-//   }
-
-//   try {
-//     // Decrypt the passwords
-//     const decryptedCurrentPassword = CryptoJS.AES.decrypt(currentPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
-//     const decryptedNewPassword = CryptoJS.AES.decrypt(newPassword, 'your_secret_key').toString(CryptoJS.enc.Utf8);
-
-//     // Find the user by ID
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     // Validate the current password
-//     const isPasswordValid = await bcrypt.compare(decryptedCurrentPassword, user.password);
-//     if (!isPasswordValid) {
-//       return res.status(400).json({ error: 'Current password is incorrect' });
-//     }
-
-//     // Validate the new password
-//     if (!validatePassword(decryptedNewPassword)) {
-//       return res.status(400).json({ error: 'New password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character' });
-//     }
-
-//     // Hash the new password
-//     const hashedNewPassword = await bcrypt.hash(decryptedNewPassword, 10);
-
-//     // Update the user's password
-//     user.password = hashedNewPassword;
-//     await user.save();
-
-//     res.status(200).json({ message: 'Password changed successfully' });
-//   } catch (error) {
-//     console.error('Error changing password:', error);
-//     res.status(500).json({ error: 'An unexpected error occurred' });
-//   }
-// });
 
 router.post('/change-password', async (req, res) => {
   const { userId, currentPassword, newPassword } = req.body;
