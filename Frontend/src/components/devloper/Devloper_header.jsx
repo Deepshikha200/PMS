@@ -75,10 +75,9 @@ export default function Devloper_header() {
           <Navbar expand="lg" className="bg-body-tertiary p-4">
             <Navbar.Brand>
               <Link>
-                {/* <img src="antierlogo.webp" alt="logo" className="logo" height={40} /> */}
                 <img
-                  // src="antierlogo.webp"
-                  src="https://static.vecteezy.com/system/resources/previews/020/026/655/non_2x/pms-letter-logo-design-on-white-background-pms-creative-circle-letter-logo-concept-pms-letter-design-vector.jpg"
+                  
+                  src="logo2.png"
 
                   alt="logo"
                   className="logo"

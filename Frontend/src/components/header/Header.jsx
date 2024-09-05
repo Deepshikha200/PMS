@@ -78,11 +78,11 @@ export default function Header({ onSearch }) {
             <Navbar.Brand>
               <Link to="/project" className="">
                 <img
-                  src="https://static.vecteezy.com/system/resources/previews/020/026/655/non_2x/pms-letter-logo-design-on-white-background-pms-creative-circle-letter-logo-concept-pms-letter-design-vector.jpg"
+                  src="logo2.png"
                   alt="logo"
                   className="logo"
-                  height={40}
-                  width={70}
+                  height={50}
+            
                 />
               </Link>
             </Navbar.Brand>
